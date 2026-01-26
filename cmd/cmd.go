@@ -3,6 +3,7 @@ package cmd
 import (
 	"tomatoBlogDB/conf"
 	"tomatoBlogDB/global"
+	"tomatoBlogDB/router"
 	"tomatoBlogDB/utils"
 )
 
@@ -24,9 +25,10 @@ func Start() {
 	global.Logger = conf.InitLogger()
 
 	// 3.
-	global.DB, err := conf.InitDB()
+	db, err := conf.InitDB()
+	global.DB = db
 	if err != nil {
-		initErr = utils.AppendError()
+		initErr = utils.AppendError(initErr, err)
 	}
 
 	if initErr != nil {

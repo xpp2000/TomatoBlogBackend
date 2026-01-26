@@ -1,10 +1,21 @@
 package router
 
 import (
-	"strings"
+	stdContext "context"
 
-	"github.com/kataras/iris/core/router"
+	"fmt"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
+	"tomatoBlogDB/global"
+	"tomatoBlogDB/middleware"
+
+	"github.com/iris-contrib/swagger/v12"
+	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/core/router"
 	"github.com/spf13/viper"
 )
 
@@ -52,7 +63,7 @@ func RegisterRoute(fn IFnRegisterRoute) {
 	gfnRouters = append(gfnRouters, fn)
 }
 
-func InitRoute() {
+func InitRouter() {
 	app := iris.New()
 
 	if isDev() {
@@ -61,4 +72,74 @@ func InitRoute() {
 	if isPro() {
 		app.Logger().SetLevel("info")
 	}
+
+	InitBasePlatformRoutes()
+
+	rgApi := app.Party("/")
+	rgAdmin := app.Party("/admin")
+	rgAdmin.Use(middleware.Auth())
+
+	// = register module routers
+	for _, fnRegisterRoute := range gfnRouters {
+		fnRegisterRoute(rgApi, rgAdmin)
+	}
+
+	// = integrate swagger
+	if isDev() {
+		config := &swagger.Config{
+			URL: "http://localhost:8888/swagger/doc.json",
+		}
+		app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(config, swaggerFiles.Handler))
+	}
+
+	// = reading server settings from viper
+	stPort := viper.GetString("server.port")
+	if stPort == "" {
+		stPort = "8888"
+	}
+
+	// gracefully exit
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch,
+			// kill -SIGINT XXXX or Ctrl+c
+			os.Interrupt,
+			syscall.SIGINT, // register that too, it should be ok
+			// os.Kill  is equivalent with the syscall.Kill
+			os.Kill,
+			syscall.SIGKILL, // register that too, it should be ok
+			// kill -SIGTERM XXXX
+			syscall.SIGTERM,
+		)
+		select {
+		case <-ch:
+			println("shutdown...")
+
+			timeout := 10 * time.Second
+			ctx, cancel := stdContext.WithTimeout(stdContext.Background(), timeout)
+			defer cancel()
+			app.Shutdown(ctx)
+			close(idleConnsClosed)
+		}
+	}()
+
+	//= Start the server
+	err := app.Run(
+		iris.Addr("localhost:8888"),
+		iris.WithoutServerError(iris.ErrServerClosed),
+		iris.WithOptimizations,
+		iris.WithoutInterruptHandler,
+	)
+	if err != nil {
+		global.Logger.Error(fmt.Sprintf("Start Server Error: %s", err.Error()))
+	}
+	global.Logger.Info("Start TomatoBlogDBServer successfully")
+
+	<-idleConnsClosed
+	global.Logger.Info("Stop Server successfully")
+}
+
+func InitBasePlatformRoutes() {
+
 }
