@@ -37,7 +37,7 @@ var (
 	isPro       func() bool
 )
 
-func preInit() {
+func init() {
 	iEnv := strings.ToLower(viper.GetString("env"))
 	if iEnv == "dev" || iEnv == "develop" {
 		environment = EnvDev

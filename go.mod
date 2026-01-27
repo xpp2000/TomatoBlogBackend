@@ -9,12 +9,11 @@ require (
 	github.com/spf13/viper v1.21.0
 	go.uber.org/zap v1.27.1
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-	gorm.io/driver/mysql v1.6.0
+	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v6 v6.2.0 // indirect
@@ -32,13 +31,16 @@ require (
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/spec v0.19.4 // indirect
 	github.com/go-openapi/swag v0.19.5 // indirect
-	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/iris-contrib/schema v0.0.6 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/pgx/v5 v5.6.0 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -74,6 +76,7 @@ require (
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
 	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
