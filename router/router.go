@@ -2,13 +2,13 @@ package router
 
 import (
 	stdContext "context"
-
 	"fmt"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+	_ "tomatoBlogDB/docs"
 	"tomatoBlogDB/global"
 	"tomatoBlogDB/middleware"
 
@@ -37,7 +37,7 @@ var (
 	isPro       func() bool
 )
 
-func init() {
+func setEnvFunc() {
 	iEnv := strings.ToLower(viper.GetString("env"))
 	if iEnv == "dev" || iEnv == "develop" {
 		environment = EnvDev
@@ -63,7 +63,48 @@ func RegisterRoute(fn IFnRegisterRoute) {
 	gfnRouters = append(gfnRouters, fn)
 }
 
+func NewApp() *iris.Application {
+	setEnvFunc()
+
+	app := iris.New()
+
+	// 1. Log level
+	if isDev() {
+		app.Logger().SetLevel("debug")
+	} else {
+		app.Logger().SetLevel("info")
+	}
+
+	// 2. register middleware
+	app.Use(iris.Compression)
+
+	// 3. router group
+	v1 := app.Party("/api/v1")
+
+	publicGroup := v1.Party("/")
+	privateGroup := v1.Party("/private")
+	privateGroup.Use(middleware.Auth())
+
+	// ==== register module ====
+	// ---- compulsory module ----
+
+	// ---- selective modules ----
+	if viper.GetBool("modules.post.enable") {
+		RegisterPostRoutes(publicGroup, privateGroup)
+	}
+
+	// 4. Swagger ()
+	if isDev() {
+		swaggerConfig := &swagger.Config{
+			URL: fmt.Sprintf("http://localhost:%s/swagger/doc.json", viper.GetString("server.port")),
+		}
+		app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(swaggerConfig, swaggerFiles.Handler))
+	}
+	return app
+}
+
 func InitRouter() {
+	setEnvFunc()
 	app := iris.New()
 
 	if isDev() {
@@ -87,7 +128,8 @@ func InitRouter() {
 	// = integrate swagger
 	if isDev() {
 		config := &swagger.Config{
-			URL: "http://localhost:8888/swagger/doc.json",
+			URL:         "http://localhost:8888/swagger/doc.json",
+			DeepLinking: true,
 		}
 		app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(config, swaggerFiles.Handler))
 	}
@@ -98,7 +140,7 @@ func InitRouter() {
 		stPort = "8888"
 	}
 
-	// gracefully exit
+	// graceful shutdown
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		ch := make(chan os.Signal, 1)

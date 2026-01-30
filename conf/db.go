@@ -16,7 +16,7 @@ func initAdmin(db *gorm.DB) {
 	var admin model.Admin
 
 	// = check whether default admin exist
-	err := db.Where("name=?", "admin").First(&admin).Error
+	err := db.Where("name=?", "tomato").First(&admin).Error
 
 	// if exist return
 	if err == nil {
@@ -69,7 +69,10 @@ func InitDB() (*gorm.DB, error) {
 
 	// = migrate struct
 	db.AutoMigrate(&model.Admin{})
-
+	db.AutoMigrate(&model.Author{})
+	db.AutoMigrate(&model.Category{})
+	db.AutoMigrate(&model.Post{})
+	db.AutoMigrate(&model.Tag{})
 	// = seed data
 	initAdmin(db)
 
