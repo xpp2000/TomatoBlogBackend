@@ -71,8 +71,9 @@ func InitDB() (*gorm.DB, error) {
 	db.AutoMigrate(&model.Admin{})
 	db.AutoMigrate(&model.Author{})
 	db.AutoMigrate(&model.Category{})
-	db.AutoMigrate(&model.Post{})
 	db.AutoMigrate(&model.Tag{})
+
+	db.AutoMigrate(&model.Post{})
 	// = seed data
 	initAdmin(db)
 
