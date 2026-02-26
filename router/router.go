@@ -12,6 +12,7 @@ import (
 	"tomatoBlogDB/global"
 	"tomatoBlogDB/middleware"
 
+	"github.com/iris-contrib/middleware/cors"
 	"github.com/iris-contrib/swagger/v12"
 	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 	"github.com/kataras/iris/v12"
@@ -68,6 +69,18 @@ func NewApp() *iris.Application {
 
 	app := iris.New()
 
+	// +. 配置 CORS 规则
+	crs := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"},
+	})
+	// +. 挂载 CORS 中间件
+	// ⚠️ 极其重要：必须使用 UseRouter 而不是 Use！
+	// 因为 OPTIONS 预检请求需要在路由匹配之前就被拦截并响应。
+	app.UseRouter(crs)
+
 	// 1. Log level
 	if isDev() {
 		app.Logger().SetLevel("debug")
@@ -87,7 +100,7 @@ func NewApp() *iris.Application {
 
 	// ==== register module ====
 	// ---- compulsory module ----
-
+	RegisterAdminRoutes(publicGroup, privateGroup)
 	// ---- selective modules ----
 	if viper.GetBool("modules.post.enable") {
 		RegisterPostRoutes(publicGroup, privateGroup)
@@ -103,6 +116,7 @@ func NewApp() *iris.Application {
 	return app
 }
 
+// = abolished
 func InitRouter() {
 	setEnvFunc()
 	app := iris.New()
