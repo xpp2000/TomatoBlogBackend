@@ -71,10 +71,10 @@ func NewApp() *iris.Application {
 
 	// +. 配置 CORS 规则
 	crs := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedOrigins:   []string{"http://localhost:*"},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"},
 	})
 	// +. 挂载 CORS 中间件
 	// ⚠️ 极其重要：必须使用 UseRouter 而不是 Use！
