@@ -1,0 +1,27 @@
+app:
+  name: "TomatoBlogManager"
+mode:
+  develop: true
+db:
+  dsn: postgresql://custom_user:tomatoleo123@127.0.0.1:5432/app_db?sslmode=disable
+  maxIdleConn: 10  # 最多空闲连接数
+  maxOpenConn: 10  # 最多打开连接数
+
+server:
+  port: 8888
+
+jwt:
+  xx: 30
+  tokenExpire: 100 # token有效时长，分钟  用GetDuration()获取
+  signingKey: tomatoleo.cn # 签名使用的key
+log:
+  MaxSize: 10 # 日志文件最大尺寸（M）超出后自动分割
+  MaxBackups: 10 #保留旧文件的最大个数
+  MaxAge: 28 #天
+
+cdn:
+  devCDN: http://127.0.0.1:8888/asset/
+
+modules:
+  post:
+    enable: true

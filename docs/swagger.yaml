@@ -1,0 +1,248 @@
+basePath: /
+definitions:
+  dto.AdminLoginReq:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  dto.PostAddReq:
+    properties:
+      category_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      keywords:
+        maxLength: 100
+        type: string
+      published_at:
+        description: 'RFC3339 "published_at": "2026-02-27T18:00:00+08:00"'
+        type: string
+      slug:
+        maxLength: 100
+        type: string
+      subtitle:
+        maxLength: 150
+        type: string
+      summary:
+        maxLength: 255
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - category_id
+    - content
+    - title
+    type: object
+  dto.PostStatusReq:
+    properties:
+      id:
+        type: integer
+      status:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+    type: object
+  dto.PostUpdateReq:
+    properties:
+      category_id:
+        description: 分类通常是必填的，即使不改也要传原值
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      id:
+        type: integer
+      slug:
+        maxLength: 100
+        type: string
+      status:
+        description: 状态 (例如想把已发布改为草稿)
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+      subtitle:
+        maxLength: 150
+        type: string
+      summary:
+        maxLength: 255
+        type: string
+      tag_ids:
+        description: 标签 ID 列表 (全量覆盖)
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - category_id
+    - content
+    - title
+    type: object
+host: localhost:8888
+info:
+  contact: {}
+  description: This is a sample server Petstore server.
+  version: "1.0"
+paths:
+  /api/v1/categories:
+    get:
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      responses: {}
+      summary: Get category list
+  /api/v1/category/{name_or_id}:
+    get:
+      parameters:
+      - description: Post ID or Name
+        in: path
+        name: name_or_id
+        required: true
+        type: string
+      responses: {}
+      summary: Get category details
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 登录请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdminLoginReq'
+      produces:
+      - application/json
+      responses: {}
+      summary: Login
+      tags:
+      - Post
+  /api/v1/post/{slug_or_id}:
+    get:
+      parameters:
+      - description: Post ID or Slug
+        in: path
+        name: slug_or_id
+        required: true
+        type: string
+      responses: {}
+      summary: Get post details
+  /api/v1/posts:
+    get:
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search Keyword
+        in: query
+        name: keyword
+        type: string
+      responses: {}
+      summary: Get post list
+  /api/v1/private/post:
+    post:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post Info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PostAddReq'
+      responses: {}
+      summary: Create a new post
+      tags:
+      - Post
+  /api/v1/private/post/{id}:
+    delete:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      summary: Delete a post
+    put:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PostUpdateReq'
+      responses: {}
+      summary: Update a post
+      tags:
+      - Post
+  /api/v1/private/post/{id}/status:
+    patch:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Status
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PostStatusReq'
+      responses: {}
+      summary: Change post status
+swagger: "2.0"

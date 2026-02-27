@@ -1,0 +1,204 @@
+{"level":"ERROR","time":"2026-01-27 14:28:50","msg":"default addr for network 'localhost:25432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:30:28","msg":"default addr for network 'localhost:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:32:24","msg":"invalid DSN: missing the slash separating the database name"}
+{"level":"ERROR","time":"2026-01-27 14:35:57","msg":"default addr for network 'localhost:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:38:47","msg":"default addr for network 'localhost:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:39:10","msg":"default addr for network '127.0.0.1:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:39:20","msg":"default addr for network '127.0.0.1:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:44:55","msg":"default addr for network '127.0.0.1:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:45:13","msg":"default addr for network '192.168.1.1:5432' unknown"}
+{"level":"ERROR","time":"2026-01-27 14:47:00","msg":"default addr for network '127.0.0.1:5432' unknown"}
+{"level":"INFO","time":"2026-01-27 15:59:18","msg":"Start TomatoBlogDBServer successfully"}
+{"level":"INFO","time":"2026-01-27 15:59:18","msg":"Stop Server successfully"}
+{"level":"INFO","time":"2026-01-27 15:59:23","msg":"Start TomatoBlogDBServer successfully"}
+{"level":"INFO","time":"2026-01-27 15:59:23","msg":"Stop Server successfully"}
+{"level":"INFO","time":"2026-01-27 15:59:40","msg":"Default admin doesn't exist, creating admin......"}
+{"level":"INFO","time":"2026-01-27 15:59:40","msg":"create admin successfully"}
+{"level":"INFO","time":"2026-01-27 23:21:38","msg":"Start TomatoBlogDBServer successfully"}
+{"level":"INFO","time":"2026-01-27 23:21:38","msg":"Stop Server successfully"}
+{"level":"INFO","time":"2026-01-29 15:49:59","msg":"Default admin doesn't exist, creating admin......"}
+{"level":"PANIC","time":"2026-01-29 15:49:59","msg":"fail to create default adminERROR: duplicate key value violates unique constraint \"idx_sys_admin_email\" (SQLSTATE 23505)"}
+{"level":"INFO","time":"2026-01-29 15:56:48","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-29 15:57:17","msg":"Start TomatoBlogDBServer successfully"}
+{"level":"INFO","time":"2026-01-29 15:57:17","msg":"Stop Server successfully"}
+{"level":"INFO","time":"2026-01-30 14:05:12","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-30 14:05:12","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-01-30 14:27:54","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-01-30 14:28:04","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-30 14:28:04","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-01-30 14:33:19","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-01-30 14:33:22","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-30 14:33:22","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-01-30 14:37:39","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-01-30 14:39:15","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-30 14:39:15","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-01-30 14:42:32","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-01-30 14:42:41","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-30 14:42:41","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-01-30 14:56:00","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-01-30 14:56:12","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-01-30 14:56:12","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-01-30 23:20:30","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-02 15:43:17","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-02 15:43:17","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-02 15:43:29","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-02 15:46:15","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-02 15:46:15","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-02 16:09:00","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-02 16:09:03","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-02 16:09:03","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-02 16:10:13","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-02 16:10:16","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-02 16:10:16","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-02 16:26:57","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-02 16:28:06","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-02 16:28:06","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-02 17:58:51","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-02 17:59:01","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-02 17:59:01","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-02 17:59:54","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 18:09:48","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 18:09:48","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 18:16:17","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 18:21:27","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 18:21:27","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 18:24:11","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 18:24:18","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 18:24:18","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 18:44:13","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 18:44:16","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 18:44:16","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 18:56:11","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 18:56:14","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 18:56:14","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 19:00:05","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 19:00:11","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 19:00:11","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 19:01:16","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 19:02:31","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 19:02:31","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 19:03:53","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 19:05:00","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 19:05:00","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 19:06:41","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 20:43:20","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 20:43:20","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 20:54:51","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-26 20:59:06","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-26 20:59:06","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-26 21:41:18","msg":"Shutdown Server ..."}
+{"level":"ERROR","time":"2026-02-27 10:18:05","msg":"failed to connect to `user=custom_user database=app_db`: 127.0.0.1:5432 (127.0.0.1): dial error: dial tcp 127.0.0.1:5432: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"INFO","time":"2026-02-27 10:18:48","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 10:18:48","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 10:32:57","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 10:33:01","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 10:33:01","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 10:45:48","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 10:45:51","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 10:45:51","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 10:47:23","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 10:47:26","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 10:47:26","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 10:48:02","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 10:48:05","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 10:48:05","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 10:53:12","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 10:53:16","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 10:53:16","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:11:20","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:11:23","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:11:23","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:15:09","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:16:27","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:16:27","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:21:09","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:21:12","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:21:12","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:25:04","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:25:08","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:25:08","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:26:25","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:26:28","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:26:28","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:29:33","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:29:37","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:29:37","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:30:17","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:30:21","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:30:21","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:32:40","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:32:44","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:32:44","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 14:42:51","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 14:42:54","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 14:42:54","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 15:10:02","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 15:10:10","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 15:10:10","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 15:10:57","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 15:11:00","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 15:11:00","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 15:19:10","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 15:19:13","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 15:19:13","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 15:34:41","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 15:34:48","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 15:34:48","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 15:39:53","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 15:39:57","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 15:39:57","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 16:58:38","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 16:58:45","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 16:58:45","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 17:30:09","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 17:30:16","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 17:30:16","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 17:49:13","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 17:49:24","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 17:49:24","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 18:11:14","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 18:11:19","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 18:11:19","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 18:40:37","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 18:40:53","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 18:40:53","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 18:49:24","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 18:49:27","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 18:49:27","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 19:29:50","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 19:30:34","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 19:30:34","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 19:39:26","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 19:39:33","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 19:39:33","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 19:47:41","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 19:47:45","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 19:47:45","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 19:54:03","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 19:54:06","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 19:54:06","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 19:57:50","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 19:57:53","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 19:57:53","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 20:07:52","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 20:07:56","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 20:07:56","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 20:11:41","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 20:11:45","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 20:11:45","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 20:16:43","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 20:16:46","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 20:16:46","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 20:24:31","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 20:24:36","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 20:24:36","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 20:29:46","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 20:29:49","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 20:29:49","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 20:56:35","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 20:56:39","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 20:56:39","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 21:42:06","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-02-27 21:42:48","msg":"Default admin has existed"}
+{"level":"INFO","time":"2026-02-27 21:42:48","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-02-27 22:10:57","msg":"Shutdown Server ..."}
