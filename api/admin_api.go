@@ -13,10 +13,10 @@ type AdminApi struct {
 	Service *service.AdminService
 }
 
-func NewAdminApi() *AdminApi {
+func NewAdminApi(adminService *service.AdminService) *AdminApi {
 	return &AdminApi{
 		BaseApi: NewBaseApi(),
-		Service: service.NewAdminService(),
+		Service: adminService,
 	}
 }
 

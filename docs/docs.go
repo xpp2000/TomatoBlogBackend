@@ -17,6 +17,9 @@ const docTemplate = `{
     "paths": {
         "/api/v1/categories": {
             "get": {
+                "tags": [
+                    "Category"
+                ],
                 "summary": "Get category list",
                 "parameters": [
                     {
@@ -37,6 +40,9 @@ const docTemplate = `{
         },
         "/api/v1/category/{name_or_id}": {
             "get": {
+                "tags": [
+                    "Category"
+                ],
                 "summary": "Get category details",
                 "parameters": [
                     {
@@ -78,6 +84,9 @@ const docTemplate = `{
         },
         "/api/v1/post/{slug_or_id}": {
             "get": {
+                "tags": [
+                    "Post"
+                ],
                 "summary": "Get post details",
                 "parameters": [
                     {
@@ -93,6 +102,9 @@ const docTemplate = `{
         },
         "/api/v1/posts": {
             "get": {
+                "tags": [
+                    "Post"
+                ],
                 "summary": "Get post list",
                 "parameters": [
                     {
@@ -178,6 +190,9 @@ const docTemplate = `{
                 "responses": {}
             },
             "delete": {
+                "tags": [
+                    "Post"
+                ],
                 "summary": "Delete a post",
                 "parameters": [
                     {
@@ -200,6 +215,9 @@ const docTemplate = `{
         },
         "/api/v1/private/post/{id}/status": {
             "patch": {
+                "tags": [
+                    "Post"
+                ],
                 "summary": "Change post status",
                 "parameters": [
                     {
@@ -265,7 +283,7 @@ const docTemplate = `{
                 },
                 "keywords": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 255
                 },
                 "published_at": {
                     "description": "RFC3339 \"published_at\": \"2026-02-27T18:00:00+08:00\"",
@@ -332,6 +350,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "keywords": {
+                    "type": "string",
+                    "maxLength": 255
+                },
                 "slug": {
                     "type": "string",
                     "maxLength": 100
@@ -353,11 +375,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255
                 },
-                "tag_ids": {
+                "tags": {
                     "description": "标签 ID 列表 (全量覆盖)",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "title": {

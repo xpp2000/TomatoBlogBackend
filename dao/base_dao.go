@@ -1,8 +1,6 @@
 package dao
 
 import (
-	"tomatoBlogDB/global"
-
 	"gorm.io/gorm"
 )
 
@@ -10,8 +8,8 @@ type BaseDao struct {
 	Orm *gorm.DB
 }
 
-func NewBaseDao() *BaseDao {
+func NewBaseDao(db *gorm.DB) *BaseDao {
 	return &BaseDao{
-		Orm: global.DB,
+		Orm: db,
 	}
 }

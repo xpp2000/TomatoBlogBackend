@@ -53,16 +53,16 @@ var _ ITagDao = (*TagDao)(nil)
 
 /* ===== Interface Define End ===== */
 
-func NewPostDao() *PostDao {
-	return &PostDao{BaseDao: NewBaseDao()}
+func NewPostDao(base *BaseDao) *PostDao {
+	return &PostDao{BaseDao: base}
 }
 
-func NewCategoryDao() *CategoryDao {
-	return &CategoryDao{BaseDao: NewBaseDao()}
+func NewCategoryDao(base *BaseDao) *CategoryDao {
+	return &CategoryDao{BaseDao: base}
 }
 
-func NewTagDao() *TagDao {
-	return &TagDao{BaseDao: NewBaseDao()}
+func NewTagDao(base *BaseDao) *TagDao {
+	return &TagDao{BaseDao: base}
 }
 
 // ==== CreatePost

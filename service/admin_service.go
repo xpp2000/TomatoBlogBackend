@@ -14,16 +14,9 @@ type AdminService struct {
 	adminDao dao.IAdminDao
 }
 
-func NewAdminService(d ...dao.IAdminDao) *AdminService {
-	var finalDao dao.IAdminDao
-
-	if len(d) > 0 {
-		finalDao = d[0]
-	} else {
-		finalDao = dao.NewAdminDao()
-	}
+func NewAdminService(adminDao dao.IAdminDao) *AdminService {
 	return &AdminService{
-		adminDao: finalDao,
+		adminDao: adminDao,
 	}
 }
 

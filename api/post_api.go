@@ -13,10 +13,11 @@ type PostApi struct {
 	Service *service.PostService
 }
 
-func NewPostApi() *PostApi {
+// NewPostApi 强制外部注入装配好的 Service
+func NewPostApi(svc *service.PostService) *PostApi {
 	return &PostApi{
 		BaseApi: NewBaseApi(),
-		Service: service.NewPostService(),
+		Service: svc,
 	}
 }
 
@@ -25,15 +26,15 @@ type CategoryApi struct {
 	Service *service.CategoryService
 }
 
-func NewCategoryApi() *CategoryApi {
+func NewCategoryApi(svc *service.CategoryService) *CategoryApi {
 	return &CategoryApi{
 		BaseApi: NewBaseApi(),
-		Service: service.NewCategoryService(),
+		Service: svc,
 	}
 }
 
 /* ===== POST API begin ===== */
-
+// @Tags Post
 // @Summary Get post details
 // @Param slug_or_id path string true "Post ID or Slug"
 // @Router /api/v1/post/{slug_or_id} [get]
@@ -119,6 +120,7 @@ func (m *PostApi) UpdatePost(ctx iris.Context) {
 	m.Ok(model.ResponseJson{Msg: "update successfully"})
 }
 
+// @Tags Post
 // @Summary Change post status
 // @Param Authorization header string true "Bearer Token"
 // @Param id path int true "Post ID"
@@ -150,6 +152,7 @@ func (m *PostApi) UpdateStatus(ctx iris.Context) {
 	m.Ok(model.ResponseJson{Msg: "change status successfully"})
 }
 
+// @Tags Post
 // @Summary Get post list
 // @Param page query int false "Page Number"
 // @Param page_size query int false "Page Size"
@@ -189,6 +192,7 @@ func (m *PostApi) ListPosts(ctx iris.Context) {
 	})
 }
 
+// @Tags Post
 // @Summary Delete a post
 // @Param Authorization header string true "Bearer Token"
 // @Param id path int true "Post ID"
@@ -216,6 +220,7 @@ func (m *PostApi) DeletePost(ctx iris.Context) {
 
 /* ===== POST API end ===== */
 
+// @Tags Category
 // @Summary Get category details
 // @Param name_or_id path string true "Post ID or Name"
 // @Router /api/v1/category/{name_or_id} [get]
@@ -231,6 +236,7 @@ func (m *CategoryApi) GetCategory(ctx iris.Context) {
 	m.Ok(model.ResponseJson{Data: post})
 }
 
+// @Tags Category
 // @Summary Get category list
 // @Param page query int false "Page Number"
 // @Param page_size query int false "Page Size"

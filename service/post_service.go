@@ -19,17 +19,11 @@ type PostService struct {
 	tagDao  dao.ITagDao
 }
 
-func NewPostService(d ...dao.IPostDao) *PostService {
-	var finalDao dao.IPostDao
-	var finalTagDao = dao.NewTagDao()
-	if len(d) > 0 {
-		finalDao = d[0]
-	} else {
-		finalDao = dao.NewPostDao()
-	}
+// Dependency Injection design
+func NewPostService(postDao dao.IPostDao, tagDao dao.ITagDao) *PostService {
 	return &PostService{
-		postDao: finalDao,
-		tagDao:  finalTagDao,
+		postDao: postDao,
+		tagDao:  tagDao,
 	}
 }
 
@@ -37,14 +31,10 @@ type CategoryService struct {
 	categoryDao dao.ICategoryDao
 }
 
-func NewCategoryService(d ...dao.ICategoryDao) *CategoryService {
-	var finalDao dao.ICategoryDao
-	if len(d) > 0 {
-		finalDao = d[0]
-	} else {
-		finalDao = dao.NewCategoryDao()
+func NewCategoryService(CategoryDao dao.ICategoryDao) *CategoryService {
+	return &CategoryService{
+		categoryDao: CategoryDao,
 	}
-	return &CategoryService{categoryDao: finalDao}
 }
 
 // ==== GetPostDetail

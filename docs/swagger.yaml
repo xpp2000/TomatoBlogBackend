@@ -19,7 +19,7 @@ definitions:
       cover:
         type: string
       keywords:
-        maxLength: 100
+        maxLength: 255
         type: string
       published_at:
         description: 'RFC3339 "published_at": "2026-02-27T18:00:00+08:00"'
@@ -67,6 +67,9 @@ definitions:
         type: string
       id:
         type: integer
+      keywords:
+        maxLength: 255
+        type: string
       slug:
         maxLength: 100
         type: string
@@ -83,10 +86,10 @@ definitions:
       summary:
         maxLength: 255
         type: string
-      tag_ids:
+      tags:
         description: 标签 ID 列表 (全量覆盖)
         items:
-          type: integer
+          type: string
         type: array
       title:
         maxLength: 100
@@ -115,6 +118,8 @@ paths:
         type: integer
       responses: {}
       summary: Get category list
+      tags:
+      - Category
   /api/v1/category/{name_or_id}:
     get:
       parameters:
@@ -125,6 +130,8 @@ paths:
         type: string
       responses: {}
       summary: Get category details
+      tags:
+      - Category
   /api/v1/login:
     post:
       consumes:
@@ -152,6 +159,8 @@ paths:
         type: string
       responses: {}
       summary: Get post details
+      tags:
+      - Post
   /api/v1/posts:
     get:
       parameters:
@@ -169,6 +178,8 @@ paths:
         type: string
       responses: {}
       summary: Get post list
+      tags:
+      - Post
   /api/v1/private/post:
     post:
       parameters:
@@ -202,6 +213,8 @@ paths:
         type: integer
       responses: {}
       summary: Delete a post
+      tags:
+      - Post
     put:
       parameters:
       - description: Bearer Token
@@ -245,4 +258,6 @@ paths:
           $ref: '#/definitions/dto.PostStatusReq'
       responses: {}
       summary: Change post status
+      tags:
+      - Post
 swagger: "2.0"

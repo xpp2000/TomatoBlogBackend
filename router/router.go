@@ -99,11 +99,12 @@ func NewApp() *iris.Application {
 	privateGroup.Use(middleware.Auth())
 
 	// ==== register module ====
+	apiContainer := InitDI(global.DB)
 	// ---- compulsory module ----
-	RegisterAdminRoutes(publicGroup, privateGroup)
+	RegisterAdminRoutes(publicGroup, privateGroup, apiContainer)
 	// ---- selective modules ----
 	if viper.GetBool("modules.post.enable") {
-		RegisterPostRoutes(publicGroup, privateGroup)
+		RegisterPostRoutes(publicGroup, privateGroup, apiContainer)
 	}
 
 	// 4. Swagger ()
