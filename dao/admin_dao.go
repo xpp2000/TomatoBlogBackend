@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"tomatoBlogDB/dto"
 	"tomatoBlogDB/model"
 )
 
@@ -8,6 +9,9 @@ type IAdminDao interface {
 	GetAdminByName(name string) (*model.Admin, error)
 	CreateAdmin(admin *model.Admin) error
 	CheckAdminNameExist(name string) bool
+	UpdateAdminStatus(id uint64, status int) error
+	GetAdminList(req dto.AdminListReq) ([]*model.Admin, int64, error)
+	DeleteAdmin(id uint64) error
 }
 
 type AdminDao struct {
@@ -42,4 +46,53 @@ func (d *AdminDao) CheckAdminNameExist(name string) bool {
 	var count int64
 	d.Orm.Model(&model.Admin{}).Where("name=?", name).Count(&count)
 	return count > 0
+}
+
+// UpdateAdminStatus 修改账号状态
+func (d *AdminDao) UpdateAdminStatus(id uint64, status int) error {
+	// 使用 Update Column 只更新特定字段，避免触发其他字段的钩子
+	return d.Orm.Model(&model.Admin{}).Where("id = ?", id).UpdateColumn("status", status).Error
+}
+
+// DeleteAdmin 软删除账号及其关联档案
+func (d *AdminDao) DeleteAdmin(id uint64) error {
+	// 💡 核心魔法：Select("Author") 告诉 GORM，删除 Admin 的同时，把 1:1 关联的 Author 也一起软删除！
+	admin := &model.Admin{BaseModel: model.BaseModel{ID: id}}
+	return d.Orm.Select("Author").Delete(admin).Error
+}
+
+// List
+func (d *AdminDao) GetAdminList(req dto.AdminListReq) ([]*model.Admin, int64, error) {
+	var admins []*model.Admin
+	var total int64
+
+	// 1. init
+	db := d.Orm.Model(&model.Admin{})
+
+	// 2. prepare query conditions
+	if req.Keyword != "" {
+		keyword := "%" + req.Keyword + "%"
+		db = db.Where("name LIKE ? OR mobile LIKE ?", keyword, keyword)
+	}
+	if req.Role != nil {
+		db = db.Where("role = ?", *req.Role)
+	}
+	if req.Status != nil {
+		db = db.Where("status = ?", *req.Status)
+	}
+
+	// 3. count candidates
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 4. paginate and order
+	offset := (req.Page - 1) * req.PageSize
+	err := db.Preload("Author").
+		Order("id DESC").
+		Offset(offset).
+		Limit(req.PageSize).
+		Find(&admins).Error
+
+	return admins, total, err
 }

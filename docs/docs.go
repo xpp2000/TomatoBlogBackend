@@ -15,6 +15,47 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/author/{name_or_id}": {
+            "get": {
+                "tags": [
+                    "Author"
+                ],
+                "summary": "Get author details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Author Name or ID",
+                        "name": "name_or_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/authors": {
+            "get": {
+                "tags": [
+                    "Author"
+                ],
+                "summary": "Get author list",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/categories": {
             "get": {
                 "tags": [
@@ -65,7 +106,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Post"
+                    "Admin"
                 ],
                 "summary": "Login",
                 "parameters": [
@@ -124,6 +165,145 @@ const docTemplate = `{
                         "description": "Search Keyword",
                         "name": "keyword",
                         "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/private/admin": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create normal user (writer)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Admin Info",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AdminAddReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/private/admin/{id}/status": {
+            "patch": {
+                "description": "only allow supreme admin(Role=999) do this. 1--active 2--disabled.",
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "update admin status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "admin or writer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "status",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AdminStatusReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/private/author/{id}": {
+            "delete": {
+                "tags": [
+                    "Author"
+                ],
+                "summary": "Delete a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/private/category": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Create a new category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Post Info",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CategoryAddReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/private/category/{id}": {
+            "delete": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Delete a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -249,6 +429,46 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.AdminAddReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "mobile",
+                "name",
+                "password",
+                "pen_name",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "description": "校验邮箱格式",
+                    "type": "string"
+                },
+                "mobile": {
+                    "description": "中国手机号通常11位",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "pen_name": {
+                    "type": "string"
+                },
+                "real_name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "role": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.AdminLoginReq": {
             "type": "object",
             "required": [
@@ -261,6 +481,34 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.AdminStatusReq": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "integer",
+                    "enum": [
+                        1,
+                        2
+                    ]
+                }
+            }
+        },
+        "dto.CategoryAddReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128
                 }
             }
         },

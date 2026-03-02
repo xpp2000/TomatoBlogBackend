@@ -6,7 +6,7 @@ type Post struct {
 	BaseModel
 
 	// base info
-	Title    string `json:"title" gorm:"type:varchar(100);not null;comment:Title"`
+	Title    string `json:"title" gorm:"type:varchar(100);uniqueIndex;not null;comment:Title"`
 	Subtitle string `json:"subtitle" gorm:"type:varchar(150);comment:Subtitle"`
 
 	// SEO fields
@@ -63,9 +63,12 @@ type Tag struct {
 
 type Author struct {
 	BaseModel
-	Name     string `json:"name" gorm:"type:varchar(50);not null;unique;comment:Author Name"`
-	Position string `json:"position" gorm:"type:varchar(64);not null;comment:Position"`
-	Avatar   string `json:"avatar,omitempty" gorm:"type:varchar(255);comment:Avatar URL"`
-	Mobile   string `json:"mobile,omitempty" gorm:"type:char(11);uniqueIndex;not null;comment:+86 phone number"`
-	Email    string `json:"email,omitempty" gorm:"type:varchar(128);uniqueIndex;comment:email"`
+	AdminID uint64 `gorm:"uniqueIndex;not null;comment:关联的账号ID"`
+
+	PenName   string  `json:"pen_name" gorm:"type:varchar(64);not null;unique;comment:Author Name"`
+	Position  string  `json:"position" gorm:"type:varchar(64);comment:Position"`
+	Avatar    string  `json:"avatar,omitempty" gorm:"type:varchar(255);comment:Avatar URL"`
+	PenMobile string  `json:"pen_mobile,omitempty" gorm:"type:char(11);comment:+86 phone number"`
+	PenEmail  *string `json:"pen_email,omitempty" gorm:"type:varchar(128);uniqueIndex;comment:email"`
+	Bio       string  `json:"bio,omitempty" gorm:"type:varchar(512);comment:Biography"`
 }

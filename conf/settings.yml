@@ -25,3 +25,9 @@ cdn:
 modules:
   post:
     enable: true
+
+dataInit:
+  InitAdminName: "tomato"
+  InitAdminPsw: "asd123"
+  InitAuthorName: "Tomato Leo"
+  InitAuthorPsw: "asd123"

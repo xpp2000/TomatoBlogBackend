@@ -29,11 +29,25 @@ func NewPostService(postDao dao.IPostDao, tagDao dao.ITagDao) *PostService {
 
 type CategoryService struct {
 	categoryDao dao.ICategoryDao
+	postDao     dao.IPostDao
 }
 
-func NewCategoryService(CategoryDao dao.ICategoryDao) *CategoryService {
+func NewCategoryService(categoryDao dao.ICategoryDao, postDao dao.IPostDao) *CategoryService {
 	return &CategoryService{
-		categoryDao: CategoryDao,
+		categoryDao: categoryDao,
+		postDao:     postDao,
+	}
+}
+
+type AuthorService struct {
+	authorDao dao.IAuthorDao
+	postDao   dao.IPostDao
+}
+
+func NewAuthorService(authorDao dao.IAuthorDao, postDao dao.IPostDao) *AuthorService {
+	return &AuthorService{
+		authorDao: authorDao,
+		postDao:   postDao,
 	}
 }
 
@@ -63,7 +77,7 @@ func (s *PostService) GetPostDetail(param string) (*dto.PostSimple, error) {
 	}
 	var author = dto.AuthorSimple{
 		ID:       post.Author.ID,
-		Name:     post.Author.Name,
+		PenName:  post.Author.PenName,
 		Position: post.Author.Position,
 		Avatar:   post.Author.Avatar,
 	}
@@ -155,6 +169,7 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 }
 
 // ==== UpdatePost
+// Description ---- for writer
 // operatorID:
 // operatorRole:
 func (s *PostService) UpdatePost(req dto.PostUpdateReq, operatorID uint64, operatorRole int) error {
@@ -208,6 +223,8 @@ func (s *PostService) UpdatePost(req dto.PostUpdateReq, operatorID uint64, opera
 }
 
 // ==== UpdateStatus
+// Description ---- for writer and super admin
+
 func (s *PostService) UpdateStatus(req dto.PostStatusReq, operatorID uint64, operatorRole int) error {
 	// 1. search the post
 	post, err := s.postDao.GetPostByID(req.ID)
@@ -238,6 +255,9 @@ func (s *PostService) UpdateStatus(req dto.PostStatusReq, operatorID uint64, ope
 
 	return nil
 }
+
+// ==== ChangePostAuthor
+// TODO!
 
 // ==== DeletePost
 func (s *PostService) DeletePost(id uint64, operatorID uint64, operatorRole int) error {
@@ -285,7 +305,7 @@ func (s *PostService) GetPostList(req dto.PostListReq) ([]*dto.PostSimple, int64
 
 		var author = dto.AuthorSimple{
 			ID:       p.Author.ID,
-			Name:     p.Author.Name,
+			PenName:  p.Author.PenName,
 			Position: p.Author.Position,
 			Avatar:   p.Author.Avatar,
 		}
@@ -318,6 +338,21 @@ func (s *PostService) GetPostList(req dto.PostListReq) ([]*dto.PostSimple, int64
 }
 
 // ==== GetCategoryDetail
+func (s *CategoryService) CreateCategory(req dto.CategoryAddReq, operatorRole int) error {
+	// 1. permission check
+	if operatorRole != ROLE_ADMIN {
+		return errors.New("permission denied")
+	}
+
+	// 2. call dao
+	cate := &model.Category{
+		Name:        req.Name,
+		Description: req.Description,
+	}
+	return s.categoryDao.CreateCategory(cate)
+
+}
+
 // - name or id
 func (s *CategoryService) GetCategoryDetail(param string) (*model.Category, error) {
 	id, err := strconv.ParseUint(param, 10, 64)
@@ -364,4 +399,120 @@ func (s *CategoryService) GetCategoryList(req dto.CategoryListReq) ([]*dto.Categ
 	// 4. return
 	return cates, total, nil
 
+}
+
+// ==== DeleteCategory
+func (s *CategoryService) DeleteCategory(id uint64, role int) error {
+	// 1. validate foreign key
+	count, err := s.postDao.CountByCategoryID(id)
+	if err != nil {
+		return err // 数据库查询出错
+	}
+	// restrict
+	if count > 0 {
+		return errors.New("cannot delete: there are posts associated with this category")
+	}
+
+	// 2. check post
+	_, err = s.categoryDao.GetCategoryByID(id)
+	if err != nil {
+		return errors.New("the category doesn't exist")
+	}
+	// 3. permission check
+	if role != ROLE_ADMIN {
+		return errors.New("permission denied")
+	}
+	// 4.
+	return s.categoryDao.DeleteCategory(id)
+}
+
+// ==== CreateAuthor
+// !TODO: 不能单独创建作者了，作者是Admin中ROLE=2的管理员，能够登录后台
+// func (s *AuthorService) CreateAuthorAbolished(req dto.AuthorAddReq, operatorRole int) error {
+// 	// 1. permission check
+// 	if operatorRole != ROLE_ADMIN {
+// 		return errors.New("permission denied")
+// 	}
+
+// 	// 2. call dao
+// 	author := &model.Author{
+// 		Name:     req.Name,
+// 		Position: req.Position,
+// 		Avatar:   req.Avatar,
+// 		Mobile:   req.Mobile,
+// 		Email:    req.Email,
+// 	}
+// 	return s.authorDao.CreateAuthor(author)
+// }
+
+// - name or id
+func (s *AuthorService) GetAuthorDetail(param string) (*model.Author, error) {
+	id, err := strconv.ParseUint(param, 10, 64)
+	var author *model.Author
+	var dbErr error
+	// 1. parameter check, and get author
+	if err == nil && id > 0 {
+		// A. ID search
+		author, dbErr = s.authorDao.GetAuthorByID(id)
+	} else {
+		// B. Name search
+		author, dbErr = s.authorDao.GetAuthorByName(param)
+	}
+	if dbErr != nil {
+		return nil, dbErr
+	}
+
+	// 2. author operations
+	// -2.1 asynchronously increasing
+
+	return author, nil
+}
+
+func (s *AuthorService) GetAuthorList(req dto.AuthorListReq) ([]*dto.AuthorSimple, int64, error) {
+	// 1. default parameters check
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	if req.PageSize > 100 {
+		req.PageSize = 100 // 限制最大页大小，防止恶意攻击
+	}
+	// 2. DAO
+	authors, total, err := s.authorDao.GetAuthorList(req)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 3. post operations
+
+	// 4. return
+	return authors, total, nil
+}
+
+// ==== DeleteAuthor
+// !TODO: 不能单独删除作者了
+func (s *AuthorService) DeleteAuthor(id uint64, role int) error {
+	// 1. validate foreign key
+	count, err := s.postDao.CountByAuthorID(id)
+	if err != nil {
+		return err // 数据库查询出错
+	}
+	// restrict
+	if count > 0 {
+		return errors.New("cannot delete: there are posts associated with this author")
+	}
+
+	// 2. check Author
+	_, err = s.authorDao.GetAuthorByID(id)
+	if err != nil {
+		return errors.New("the author doesn't exist")
+	}
+	// 3. permission check
+	if role != ROLE_ADMIN {
+		return errors.New("permission denied")
+	}
+	// 4.
+	return s.authorDao.DeleteAuthor(id)
 }

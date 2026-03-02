@@ -19,7 +19,10 @@ type IPostDao interface {
 	UpdatePostStatus(id uint64, status int) error
 	DeletePost(id uint64) error
 	GetPostList(req dto.PostListReq) ([]*model.Post, int64, error)
+
 	IncrReadCount(id uint64)
+	CountByCategoryID(categoryID uint64) (int64, error)
+	CountByAuthorID(authorID uint64) (int64, error)
 }
 
 type PostDao struct {
@@ -33,6 +36,7 @@ type ICategoryDao interface {
 	GetCategoryByID(id uint64) (*model.Category, error)
 	GetCategoryByName(name string) (*model.Category, error)
 	GetCategoryList(req dto.CategoryListReq) ([]*dto.CategorySimple, int64, error)
+	DeleteCategory(id uint64) error
 }
 
 type CategoryDao struct {
@@ -51,6 +55,20 @@ type TagDao struct {
 
 var _ ITagDao = (*TagDao)(nil)
 
+type IAuthorDao interface {
+	CreateAuthor(author *model.Author) error
+	GetAuthorByID(id uint64) (*model.Author, error)
+	GetAuthorByName(name string) (*model.Author, error)
+	GetAuthorList(req dto.AuthorListReq) ([]*dto.AuthorSimple, int64, error)
+	DeleteAuthor(id uint64) error
+}
+
+type AuthorDao struct {
+	*BaseDao
+}
+
+var _ IAuthorDao = (*AuthorDao)(nil)
+
 /* ===== Interface Define End ===== */
 
 func NewPostDao(base *BaseDao) *PostDao {
@@ -65,6 +83,11 @@ func NewTagDao(base *BaseDao) *TagDao {
 	return &TagDao{BaseDao: base}
 }
 
+func NewAuthorDao(base *BaseDao) *AuthorDao {
+	return &AuthorDao{BaseDao: base}
+}
+
+/* ===== Post Dao begin ===== */
 // ==== CreatePost
 // GORM will check post.Tags automatically, if only set ID in post.Tags,
 // GORM will associate them in middle table rather than creating a new record.
@@ -217,6 +240,21 @@ func (d *PostDao) IncrReadCount(id uint64) {
 		Where("id = ?", id).
 		UpdateColumn("read_count", gorm.Expr("read_count + ?", 1))
 }
+func (d *PostDao) CountByCategoryID(categoryID uint64) (int64, error) {
+	var count int64
+	err := d.Orm.Model(&model.Post{}).
+		Where("category_id = ?", categoryID).Count(&count).Error
+	return count, err
+}
+
+func (d *PostDao) CountByAuthorID(authorID uint64) (int64, error) {
+	var count int64
+	err := d.Orm.Model(&model.Post{}).
+		Where("author_id = ?", authorID).Count(&count).Error
+	return count, err
+}
+
+/* ===== Post Dao end ===== */
 
 // ==== CreateCategory
 func (d *CategoryDao) CreateCategory(cate *model.Category) error {
@@ -266,6 +304,15 @@ func (d *CategoryDao) GetCategoryList(req dto.CategoryListReq) ([]*dto.CategoryS
 	return cates, total, err
 }
 
+// ==== DeleteCategory
+// - soft delete
+func (d *CategoryDao) DeleteCategory(id uint64) error {
+	// GORM 默认是软删除 (Soft Delete)，因为 model 里有 DeletedAt 字段
+	// 如果想要硬删除（物理删除），可以使用 d.Orm.Unscoped().Delete(...)
+	return d.Orm.Delete(&model.Category{}, id).Error
+}
+
+// ==== GetOrCreateByNames
 func (d *TagDao) GetOrCreateByNames(names []string) ([]*model.Tag, error) {
 	var tags []*model.Tag
 	for _, name := range names {
@@ -285,4 +332,56 @@ func (d *TagDao) GetOrCreateByNames(names []string) ([]*model.Tag, error) {
 	}
 
 	return tags, nil
+}
+
+// ==== CreateAuthor
+func (d *AuthorDao) CreateAuthor(author *model.Author) error {
+	return d.Orm.Create(author).Error
+}
+
+// ==== GetCreateAuthor
+func (d *AuthorDao) GetAuthorByID(id uint64) (*model.Author, error) {
+	var author model.Author
+	err := d.Orm.First(&author, id).Error
+	return &author, err
+}
+
+func (d *AuthorDao) GetAuthorByName(name string) (*model.Author, error) {
+	var author model.Author
+	err := d.Orm.
+		Where("name = ?", name).
+		First(&author).Error
+	return &author, err
+}
+
+func (d *AuthorDao) GetAuthorList(req dto.AuthorListReq) ([]*dto.AuthorSimple, int64, error) {
+	var authors []*dto.AuthorSimple
+	var total int64
+
+	// 1. init
+	db := d.Orm.Model(&model.Author{})
+
+	// possible conditional search
+
+	// 2. count candidates
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 3. 分页、排序并查询指定字段，结果自动映射到 cates (DTO) 中
+	offset := (req.Page - 1) * req.PageSize
+	err := db.
+		Order("name ASC").
+		Offset(offset).
+		Limit(req.PageSize).
+		Find(&authors).Error
+	return authors, total, err
+}
+
+// ==== DeleteCategory
+// - soft delete
+func (d *AuthorDao) DeleteAuthor(id uint64) error {
+	// GORM 默认是软删除 (Soft Delete)，因为 model 里有 DeletedAt 字段
+	// 如果想要硬删除（物理删除），可以使用 d.Orm.Unscoped().Delete(...)
+	return d.Orm.Delete(&model.Author{}, id).Error
 }

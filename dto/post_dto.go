@@ -1,5 +1,6 @@
 package dto
 
+/* Post begin */
 type PostAddReq struct {
 	Title    string `json:"title" validate:"required,max=100"`
 	Subtitle string `json:"subtitle" validate:"omitempty,max=150"`
@@ -46,9 +47,34 @@ type PostListReq struct {
 	Status     *int   `json:"status" form:"status"` // point type, allow 0/nil values
 }
 
+/* ===== Post end ===== */
+
+/* ===== Category begin ===== */
 type CategoryListReq struct {
 	Pagination
 }
+
+type CategoryAddReq struct {
+	Name        string `json:"name" validate:"required,max=128"`
+	Description string `json:"description" validate:"omitempty,max=128"`
+}
+
+/* ===== Category end ===== */
+
+/* ===== Author begin ===== */
+type AuthorAddReq struct {
+	Name     string `json:"name" validate:"required,max=128"`
+	Position string `json:"position" validate:"required,max=128"`
+	Avatar   string `json:"avatar,omitempty" validate:"required,url"`
+	Mobile   string `json:"mobile,omitempty" validate:"omitempty,max=32"`
+	Email    string `json:"email,omitempty" validate:"omitempty,max=128"`
+}
+
+type AuthorListReq struct {
+	Pagination
+}
+
+/* ===== Author end ===== */
 
 /* ===== View dto begin ====== */
 type CategorySimple struct {
@@ -59,7 +85,7 @@ type CategorySimple struct {
 
 type AuthorSimple struct {
 	ID       uint64 `json:"id" `
-	Name     string `json:"name" `
+	PenName  string `json:"pen_name" `
 	Position string `json:"position"`
 	Avatar   string `json:"avatar,omitempty"`
 	Mobile   string `json:"mobile,omitempty"`

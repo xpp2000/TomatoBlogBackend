@@ -1,5 +1,35 @@
 basePath: /
 definitions:
+  dto.AdminAddReq:
+    properties:
+      email:
+        description: 校验邮箱格式
+        type: string
+      mobile:
+        description: 中国手机号通常11位
+        type: string
+      name:
+        maxLength: 20
+        minLength: 3
+        type: string
+      password:
+        minLength: 6
+        type: string
+      pen_name:
+        type: string
+      real_name:
+        maxLength: 20
+        type: string
+      role:
+        type: integer
+    required:
+    - email
+    - mobile
+    - name
+    - password
+    - pen_name
+    - role
+    type: object
   dto.AdminLoginReq:
     properties:
       name:
@@ -9,6 +39,25 @@ definitions:
     required:
     - name
     - password
+    type: object
+  dto.AdminStatusReq:
+    properties:
+      status:
+        enum:
+        - 1
+        - 2
+        type: integer
+    type: object
+  dto.CategoryAddReq:
+    properties:
+      description:
+        maxLength: 128
+        type: string
+      name:
+        maxLength: 128
+        type: string
+    required:
+    - name
     type: object
   dto.PostAddReq:
     properties:
@@ -105,6 +154,33 @@ info:
   description: This is a sample server Petstore server.
   version: "1.0"
 paths:
+  /api/v1/author/{name_or_id}:
+    get:
+      parameters:
+      - description: Author Name or ID
+        in: path
+        name: name_or_id
+        required: true
+        type: string
+      responses: {}
+      summary: Get author details
+      tags:
+      - Author
+  /api/v1/authors:
+    get:
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      responses: {}
+      summary: Get author list
+      tags:
+      - Author
   /api/v1/categories:
     get:
       parameters:
@@ -148,7 +224,7 @@ paths:
       responses: {}
       summary: Login
       tags:
-      - Post
+      - Admin
   /api/v1/post/{slug_or_id}:
     get:
       parameters:
@@ -180,6 +256,100 @@ paths:
       summary: Get post list
       tags:
       - Post
+  /api/v1/private/admin:
+    post:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Admin Info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdminAddReq'
+      responses: {}
+      summary: Create normal user (writer)
+      tags:
+      - Admin
+  /api/v1/private/admin/{id}/status:
+    patch:
+      description: only allow supreme admin(Role=999) do this. 1--active 2--disabled.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: admin or writer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: status
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdminStatusReq'
+      responses: {}
+      summary: update admin status
+      tags:
+      - Admin
+  /api/v1/private/author/{id}:
+    delete:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      summary: Delete a post
+      tags:
+      - Author
+  /api/v1/private/category:
+    post:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Post Info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryAddReq'
+      responses: {}
+      summary: Create a new category
+      tags:
+      - Category
+  /api/v1/private/category/{id}:
+    delete:
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      summary: Delete a post
+      tags:
+      - Category
   /api/v1/private/post:
     post:
       parameters:

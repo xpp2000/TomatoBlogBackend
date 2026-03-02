@@ -33,6 +33,18 @@ func NewCategoryApi(svc *service.CategoryService) *CategoryApi {
 	}
 }
 
+type AuthorApi struct {
+	*BaseApi
+	Service *service.AuthorService
+}
+
+func NewAuthorApi(svc *service.AuthorService) *AuthorApi {
+	return &AuthorApi{
+		BaseApi: NewBaseApi(),
+		Service: svc,
+	}
+}
+
 /* ===== POST API begin ===== */
 // @Tags Post
 // @Summary Get post details
@@ -167,7 +179,7 @@ func (m *PostApi) ListPosts(ctx iris.Context) {
 		return
 	}
 
-	// default page parameters
+	// default page parameters, can put these into service
 	if req.Page <= 0 {
 		req.Page = 1
 	}
@@ -215,10 +227,38 @@ func (m *PostApi) DeletePost(ctx iris.Context) {
 		m.Fail(model.ResponseJson{Msg: err.Error()})
 		return
 	}
-	m.Ok(model.ResponseJson{Msg: "删除成功"})
+	m.Ok(model.ResponseJson{Msg: "delete Post status successfully删除成功"})
 }
 
 /* ===== POST API end ===== */
+
+/* ===== Category API begin ===== */
+
+// @Tags Category
+// @Summary Create a new category
+// @Param Authorization header string true "Bearer Token"
+// @Param body body dto.CategoryAddReq true "Post Info"
+// @Router /api/v1/private/category [post]
+func (m *CategoryApi) AddCategory(ctx iris.Context) {
+	m.SetContext(ctx)
+	var req dto.CategoryAddReq
+
+	// 1. bind req
+	if !m.BuildRequest(BuildRequestOption{DTO: &req, BindBody: true}) {
+		return
+	}
+
+	// 2. get current user ID
+	role := ctx.Values().GetIntDefault("current_user_role", 0)
+
+	// 3. call Service(pass into sate authorID)
+	err := m.Service.CreateCategory(req, role)
+	if err != nil {
+		m.Fail(model.ResponseJson{Msg: "fail to create a new category " + err.Error()})
+		return
+	}
+	m.Ok(model.ResponseJson{Msg: "create a new category successfully"})
+}
 
 // @Tags Category
 // @Summary Get category details
@@ -274,3 +314,132 @@ func (m *CategoryApi) ListCategory(ctx iris.Context) {
 		},
 	})
 }
+
+// @Tags Category
+// @Summary Delete a post
+// @Param Authorization header string true "Bearer Token"
+// @Param id path int true "Category ID"
+// @Router /api/v1/private/category/{id} [delete]
+func (m *CategoryApi) DeleteCategory(ctx iris.Context) {
+	m.SetContext(ctx)
+
+	id, _ := ctx.Params().GetInt64("id")
+
+	role := ctx.Values().GetIntDefault("current_user_role", 0)
+
+	err := m.Service.DeleteCategory(uint64(id), role)
+
+	if err != nil {
+		m.Fail(model.ResponseJson{Msg: err.Error()})
+		return
+	}
+	m.Ok(model.ResponseJson{Msg: "删除成功"})
+}
+
+/* ===== Category API end ===== */
+
+/* ===== Author API begin ===== */
+/*
+@Tags Author
+@Summary Create a new author
+@Param Authorization header string true "Bearer Token"
+@Param body body dto.AuthorAddReq true "Author Info"
+@Router /api/v1/private/author [post]
+
+func (m *AuthorApi) AddAuthor(ctx iris.Context) {
+	m.SetContext(ctx)
+	var req dto.AuthorAddReq
+
+	// 1. bind req
+	if !m.BuildRequest(BuildRequestOption{DTO: &req, BindBody: true}) {
+		return
+	}
+
+	// 2. get current user Role
+	role := ctx.Values().GetIntDefault("current_user_role", 0)
+
+	// 3. call Service
+	err := m.Service.CreateAuthor(req, role)
+	if err != nil {
+		m.Fail(model.ResponseJson{Msg: "fail to create a new Author " + err.Error()})
+	}
+	m.Ok(model.ResponseJson{Msg: "create a new Author successfully"})
+}
+*/
+
+// @Tags Author
+// @Summary Get author details
+// @Param name_or_id path string true "Author Name or ID"
+// @Router /api/v1/author/{name_or_id} [get]
+func (m *AuthorApi) GetAuthor(ctx iris.Context) {
+	m.SetContext(ctx)
+	param := ctx.Params().Get("name_or_id")
+
+	author, err := m.Service.GetAuthorDetail(param)
+	if err != nil {
+		m.Fail(model.ResponseJson{Code: 404, Msg: "author dose't exist"})
+		return
+	}
+	m.Ok(model.ResponseJson{Data: author})
+}
+
+// @Tags Author
+// @Summary Get author list
+// @Param page query int false "Page Number"
+// @Param page_size query int false "Page Size"
+// @Router /api/v1/authors [get]
+func (m *AuthorApi) ListAuthors(ctx iris.Context) {
+	m.SetContext(ctx)
+	var req dto.AuthorListReq
+
+	// 1. BindQuery
+	if err := ctx.ReadQuery(&req); err != nil {
+		return
+	}
+
+	// default page parameters
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	// 2. service
+	authors, total, err := m.Service.GetAuthorList(req)
+	if err != nil {
+		m.Fail(model.ResponseJson{Msg: err.Error()})
+		return
+	}
+
+	// 3. successfully
+	m.Ok(model.ResponseJson{
+		Data: iris.Map{
+			"list":  authors,
+			"total": total,
+			"page":  req.Page,
+		},
+	})
+}
+
+// @Tags Author
+// @Summary Delete a post
+// @Param Authorization header string true "Bearer Token"
+// @Param id path int true "Author ID"
+// @Router /api/v1/private/author/{id} [delete]
+func (m *AuthorApi) DeleteAuthor(ctx iris.Context) {
+	m.SetContext(ctx)
+
+	id, _ := ctx.Params().GetInt64("id")
+
+	role := ctx.Values().GetIntDefault("current_user_role", 0)
+
+	err := m.Service.DeleteAuthor(uint64(id), role)
+
+	if err != nil {
+		m.Fail(model.ResponseJson{Msg: err.Error()})
+		return
+	}
+	m.Ok(model.ResponseJson{Msg: "删除成功"})
+}
+
+/* ===== Author API end ===== */

@@ -22,16 +22,14 @@ type Admin struct {
 
 	// 联系方式 (添加唯一索引)
 	Mobile string `json:"mobile" gorm:"type:char(11);uniqueIndex;not null;comment:+86 phone number"`
-	Email  string `json:"email,omitempty" gorm:"type:varchar(128);uniqueIndex;comment:email"`
-
-	// 资料信息
-	Avatar string `json:"avatar,omitempty" gorm:"type:varchar(255);comment:Avatar URL"`
+	Email  string `json:"email,omitempty" gorm:"type:varchar(128);uniqueIndex,not null;comment:email"`
 
 	// 安全信息 (JSON 忽略)
 	Password string `json:"-" gorm:"type:varchar(128);not null;comment:encrypted psw"`
-
 	// 1: 普通用户, 999: 超级管理员
-	Role int `json:"role" gorm:"default:1;comment:1-User 999-Admin"`
+	Role   int     `json:"role" gorm:"default:1;comment:1-User 999-Admin"`
+	Status int     `json:"status" gorm:"type:smallint;default:1;comment:1-Active(正常) 2-Disabled(禁用)"` // Author作者档案
+	Author *Author `gorm:"foreignKey:AdminID"`
 }
 
 // SetPassword 设置密码
