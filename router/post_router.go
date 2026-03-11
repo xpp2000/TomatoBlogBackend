@@ -20,11 +20,11 @@ func RegisterPostRoutes(rgPublic iris.Party, rgPrivate iris.Party, apiContainer 
 		pCategory.Post("/", cateApi.AddCategory)
 		pCategory.Delete("/{id}", cateApi.DeleteCategory)
 	}
-	pAuthor := rgPrivate.Party("/author")
-	{
-		// pAuthor.Post("/", authorApi.AddAuthor)
-		pAuthor.Delete("/{id}", authorApi.DeleteAuthor)
-	}
+	// pAuthor := rgPrivate.Party("/author")
+	// {
+	// 	// pAuthor.Post("/", authorApi.AddAuthor)
+	// 	// pAuthor.Delete("/{id}", authorApi.DeleteAuthor)
+	// }
 
 	{
 		rgPublic.Get("/posts", postApi.ListPosts)

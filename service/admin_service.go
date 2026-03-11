@@ -4,6 +4,7 @@ import (
 	"errors"
 	"tomatoBlogDB/dao"
 	"tomatoBlogDB/dto"
+	"tomatoBlogDB/errcode"
 	"tomatoBlogDB/model"
 	"tomatoBlogDB/utils"
 
@@ -12,11 +13,13 @@ import (
 
 type AdminService struct {
 	adminDao dao.IAdminDao
+	postDao  dao.IPostDao
 }
 
-func NewAdminService(adminDao dao.IAdminDao) *AdminService {
+func NewAdminService(adminDao dao.IAdminDao, postDao dao.IPostDao) *AdminService {
 	return &AdminService{
 		adminDao: adminDao,
+		postDao:  postDao,
 	}
 }
 
@@ -29,20 +32,20 @@ func (s *AdminService) Login(req dto.AdminLoginReq) (string, *model.Admin, error
 	admin, err := s.adminDao.GetAdminByName(req.Name)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", nil, errors.New("administrator doesn't exist ")
+			return "", nil, errcode.ErrAdminNotFound
 		}
-		return "", nil, err
+		return "", nil, errcode.NewSysErr(err)
 	}
 
 	// 2. verify password
 	if !admin.CheckPassword(req.Password) {
-		return "", nil, errors.New("incorrect password")
+		return "", nil, errcode.ErrPassWordIncorrect
 	}
 
 	// 3. generate token
 	token, err := utils.GenerateToken(admin.ID, admin.Name, admin.Role)
 	if err != nil {
-		return "", nil, errors.New("fail to generate token: " + err.Error())
+		return "", nil, errcode.NewSysErr(err)
 	}
 
 	return token, admin, nil
@@ -52,12 +55,15 @@ func (s *AdminService) Login(req dto.AdminLoginReq) (string, *model.Admin, error
 func (s *AdminService) CreateAdmin(req dto.AdminAddReq, operatorRole int) error {
 	// 1. permission check
 	if operatorRole != ROLE_ADMIN {
-		return errors.New("permission denied")
+		return errcode.ErrPermissionDenied
 	}
 	if req.Role == ROLE_ADMIN {
-		return errors.New("permission denied")
+		return errcode.ErrPermissionDenied
 	}
-
+	// Role is valid?
+	if req.Role != 1 {
+		return errcode.ErrRoleTargetDeny
+	}
 	// 2. assembly admin
 	admin := &model.Admin{
 		Name:     req.Name,
@@ -67,10 +73,20 @@ func (s *AdminService) CreateAdmin(req dto.AdminAddReq, operatorRole int) error 
 		Role:     req.Role,
 	}
 	if err := admin.SetPassword(req.Password); err != nil {
-		return err
+		return errcode.NewSysErr(err)
+	}
+	// 3. check duplicated
+	if isExist, _ := s.adminDao.CheckUnique("email", req.Email); isExist {
+		return errcode.ErrEmailExist
+	}
+	if isExist, _ := s.adminDao.CheckUnique("name", req.Name); isExist {
+		return errcode.ErrNameExist
+	}
+	if isExist, _ := s.adminDao.CheckUnique("mobil", req.Mobile); isExist {
+		return errcode.ErrMobileExist
 	}
 
-	// 3.
+	// 4.
 	// 只有当 Role 为普通作者(1) 时，才为其初始化作者档案
 	if admin.Role == 1 {
 		admin.Author = &model.Author{
@@ -78,39 +94,69 @@ func (s *AdminService) CreateAdmin(req dto.AdminAddReq, operatorRole int) error 
 			// 此时不需要填 AdminID，GORM 插入 admin 后会自动把生成的 ID 填到这里！
 		}
 	}
-	// 4.
-	return s.adminDao.CreateAdmin(admin)
+	// 5.
+	err := s.adminDao.CreateAdmin(admin)
+	if err != nil {
+		return errcode.NewSysErr(err)
+	}
+	return nil
 }
 
 // ==== UpdateAdminStatus
 func (s *AdminService) UpdateAdminStatus(targetID uint64, status int, currentAdminID uint64) error {
 	// 1. prevent banning self
 	if targetID == 1 {
-		return errors.New("cannot disable the supreme administrator")
+		return errcode.ErrMaliciousTarget
 	}
 	if targetID == currentAdminID {
-		return errors.New("can't execute this operation")
+		return errcode.ErrMaliciousOperation
 	}
 	// 2. status field check
 	if status != 1 && status != 2 {
-		return errors.New("invalid status")
+		return errcode.ErrAdminStatus
 	}
 
-	return s.adminDao.UpdateAdminStatus(targetID, status)
+	// 3.
+	if err := s.adminDao.UpdateAdminStatus(targetID, status); err != nil {
+		return errcode.NewSysErr(err)
+	}
+	return nil
 
 }
 
 // ==== DeleteAdmin
 func (s *AdminService) DeleteAdmin(targetID uint64, currentAdminID uint64) error {
 	if targetID == 1 {
-		return errors.New("cannot delete the supreme administrator")
+		return errcode.ErrMaliciousTarget
 	}
 	if targetID == currentAdminID {
-		return errors.New("you cannot delete your own account")
+		return errcode.ErrMaliciousTarget
 	}
 
 	// 业务拓展：你甚至可以在这里调用 postDao 检查该作者名下有没有文章，有的话不让删
 	// TODO
+	// 1. 先查出这个即将被删的倒霉蛋
+	admin, err := s.adminDao.GetAdminByID(targetID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errcode.ErrAdminNotFound
+		}
+		return errcode.NewSysErr(err) // 抛出系统错误给 HandleError 记日志
+	}
+	// 2. 核心约束校验：检查文章依赖
+	// 只有当存在 Author 档案时，才需要去查文章表
+	if admin.Author != nil {
+		postCount, err := s.postDao.CountByAuthorID(admin.Author.ID)
+		if err != nil {
+			return errcode.NewSysErr(err) // 数据库查挂了
+		}
+
+		// 铁律：名下有资产，绝对不让销户
+		if postCount > 0 {
+			// 409 是标准的 HTTP 冲突状态码 (Conflict)
+			return errcode.ErrDeletePostFirst
+		}
+	}
 	return s.adminDao.DeleteAdmin(targetID)
 }
 

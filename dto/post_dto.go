@@ -34,8 +34,8 @@ type PostUpdateReq struct {
 }
 
 type PostStatusReq struct {
-	ID     uint64 `json:"id"`
-	Status int    `json:"status" validate:"oneof=0 1 2"`
+	ID     uint64 `json:"id" validate:"required,gt=0"`
+	Status int    `json:"status" validate:"required,oneof=0 1 2"`
 }
 
 type PostListReq struct {

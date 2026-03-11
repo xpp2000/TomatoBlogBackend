@@ -16,11 +16,13 @@ definitions:
         minLength: 6
         type: string
       pen_name:
+        maxLength: 64
         type: string
       real_name:
         maxLength: 20
         type: string
       role:
+        maximum: 999
         type: integer
     required:
     - email
@@ -39,6 +41,16 @@ definitions:
     required:
     - name
     - password
+    type: object
+  dto.AdminLoginResp:
+    properties:
+      role:
+        example: admin
+        type: string
+      token:
+        description: 可以顺手加个 example
+        example: 'eyJhbGciOiJIUzI1Ni... '
+        type: string
     type: object
   dto.AdminStatusReq:
     properties:
@@ -104,6 +116,9 @@ definitions:
         - 1
         - 2
         type: integer
+    required:
+    - id
+    - status
     type: object
   dto.PostUpdateReq:
     properties:
@@ -147,6 +162,21 @@ definitions:
     - category_id
     - content
     - title
+    type: object
+  model.ResponseJson:
+    properties:
+      code:
+        description: used to indicate error to front-end engineer
+        type: integer
+      data: {}
+      msg:
+        description: message to front-end user
+        type: string
+      status:
+        description: 0 means not set, use default status code
+        type: integer
+      total:
+        type: integer
     type: object
 host: localhost:8888
 info:
@@ -212,6 +242,10 @@ paths:
     post:
       consumes:
       - application/json
+      description: |-
+        **业务错误码 (Code) 说明：**
+        - `401003` - 用户名或密码错误
+        - `401004` - 该账号已被冻结，禁止登录
       parameters:
       - description: 登录请求参数
         in: body
@@ -221,7 +255,16 @@ paths:
           $ref: '#/definitions/dto.AdminLoginReq'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ResponseJson'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdminLoginResp'
+              type: object
       summary: Login
       tags:
       - Admin
@@ -258,11 +301,16 @@ paths:
       - Post
   /api/v1/private/admin:
     post:
+      consumes:
+      - application/json
+      description: |-
+        ** 任意添加admin表【！！非业务】**
+        ** ---- 业务错误码（Cpde）说明 ---- **
+        -401005
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Admin Info
         in: body
@@ -270,51 +318,90 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.AdminAddReq'
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '成功响应。注意：实际返回值为 Code: 20100, Msg: ''create a new Admin successfully'''
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Create normal user (writer)
+      tags:
+      - Admin
+  /api/v1/private/admin/{id}:
+    delete:
+      description: only allow supreme admin(Role=999) do this.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        type: string
+      - description: admin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '成功响应。实际返回值为 Msg: ''delete Admin status successfully'''
+          schema:
+            type: "200"
+      summary: Delete an admin
       tags:
       - Admin
   /api/v1/private/admin/{id}/status:
     patch:
+      consumes:
+      - application/json
       description: only allow supreme admin(Role=999) do this. 1--active 2--disabled.
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
-      - description: admin or writer ID
+      - description: admin ID
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: status
         in: body
         name: data
         required: true
         schema:
           $ref: '#/definitions/dto.AdminStatusReq'
-      responses: {}
-      summary: update admin status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '成功响应。实际返回值为 Msg: ''update Admin status successfully''}'
+          schema:
+            type: "200"
+      summary: update an admin status
       tags:
       - Admin
-  /api/v1/private/author/{id}:
-    delete:
+  /api/v1/private/admins:
+    get:
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
         required: true
         type: string
-      - description: Author ID
-        in: path
-        name: id
-        required: true
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
         type: integer
       responses: {}
-      summary: Delete a post
+      summary: Get admin list
       tags:
-      - Author
+      - Admin
   /api/v1/private/category:
     post:
       parameters:

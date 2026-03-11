@@ -7,11 +7,13 @@ import (
 
 type IAdminDao interface {
 	GetAdminByName(name string) (*model.Admin, error)
+	GetAdminByID(id uint64) (*model.Admin, error)
 	CreateAdmin(admin *model.Admin) error
 	CheckAdminNameExist(name string) bool
 	UpdateAdminStatus(id uint64, status int) error
 	GetAdminList(req dto.AdminListReq) ([]*model.Admin, int64, error)
 	DeleteAdmin(id uint64) error
+	CheckUnique(field string, value string) (bool, error)
 }
 
 type AdminDao struct {
@@ -38,6 +40,22 @@ func (d *AdminDao) GetAdminByName(name string) (*model.Admin, error) {
 	return &admin, nil
 }
 
+func (d *AdminDao) GetAdminByID(id uint64) (*model.Admin, error) {
+	var admin model.Admin
+
+	// Preload("Author")
+	// 它会在底层自动执行两条 SQL：
+	// 1. SELECT * FROM admins WHERE id = ? AND deleted_at IS NULL
+	// 2. SELECT * FROM authors WHERE admin_id = ? AND deleted_at IS NULL
+	err := d.Orm.Preload("Author").First(&admin, id).Error
+
+	// 严谨的错误处理：如果没查到记录 (gorm.ErrRecordNotFound) 或数据库报错，直接返回 nil
+	if err != nil {
+		return nil, err
+	}
+
+	return &admin, nil
+}
 func (d *AdminDao) CreateAdmin(admin *model.Admin) error {
 	return d.Orm.Create(admin).Error
 }
@@ -56,7 +74,7 @@ func (d *AdminDao) UpdateAdminStatus(id uint64, status int) error {
 
 // DeleteAdmin 软删除账号及其关联档案
 func (d *AdminDao) DeleteAdmin(id uint64) error {
-	// 💡 核心魔法：Select("Author") 告诉 GORM，删除 Admin 的同时，把 1:1 关联的 Author 也一起软删除！
+	// Select("Author") 告诉 GORM，删除 Admin 的同时，把 1:1 关联的 Author 也一起软删除！
 	admin := &model.Admin{BaseModel: model.BaseModel{ID: id}}
 	return d.Orm.Select("Author").Delete(admin).Error
 }
@@ -89,10 +107,23 @@ func (d *AdminDao) GetAdminList(req dto.AdminListReq) ([]*model.Admin, int64, er
 	// 4. paginate and order
 	offset := (req.Page - 1) * req.PageSize
 	err := db.Preload("Author").
-		Order("id DESC").
+		Order("id ASC").
 		Offset(offset).
 		Limit(req.PageSize).
 		Find(&admins).Error
 
 	return admins, total, err
+}
+
+// CheckUnique 检查某个字段的值是否已存在
+// 参数 field: 数据库字段名 (注意：因为是我们自己在 Service 层写死的，所以没有 SQL 注入风险)
+// 参数 value: 要检查的值
+func (d *AdminDao) CheckUnique(field string, value string) (bool, error) {
+	var count int64
+
+	// 动态拼接 WHERE 条件进行查询
+	err := d.Orm.Model(&model.Admin{}).Where(field+" = ?", value).Count(&count).Error
+
+	// 如果 count 大于 0，说明数据已经存在，返回 true
+	return count > 0, err
 }

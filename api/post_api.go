@@ -421,11 +421,12 @@ func (m *AuthorApi) ListAuthors(ctx iris.Context) {
 	})
 }
 
-// @Tags Author
-// @Summary Delete a post
-// @Param Authorization header string true "Bearer Token"
-// @Param id path int true "Author ID"
-// @Router /api/v1/private/author/{id} [delete]
+/*
+@Tags Author
+@Summary Delete an author
+@Param Authorization header string true "Bearer Token"
+@Param id path int true "Author ID"
+@Router /api/v1/private/author/{id} [delete]
 func (m *AuthorApi) DeleteAuthor(ctx iris.Context) {
 	m.SetContext(ctx)
 
@@ -441,5 +442,5 @@ func (m *AuthorApi) DeleteAuthor(ctx iris.Context) {
 	}
 	m.Ok(model.ResponseJson{Msg: "删除成功"})
 }
-
+*/
 /* ===== Author API end ===== */

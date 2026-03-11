@@ -99,6 +99,7 @@ const docTemplate = `{
         },
         "/api/v1/login": {
             "post": {
+                "description": "**业务错误码 (Code) 说明：**\n- ` + "`" + `401003` + "`" + ` - 用户名或密码错误\n- ` + "`" + `401004` + "`" + ` - 该账号已被冻结，禁止登录",
                 "consumes": [
                     "application/json"
                 ],
@@ -120,7 +121,26 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ResponseJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdminLoginResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         },
         "/api/v1/post/{slug_or_id}": {
@@ -172,6 +192,13 @@ const docTemplate = `{
         },
         "/api/v1/private/admin": {
             "post": {
+                "description": "** 任意添加admin表【！！非业务】**\n** ---- 业务错误码（Cpde）说明 ---- **\n-401005",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin"
                 ],
@@ -181,8 +208,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "description": "Admin Info",
@@ -194,27 +220,74 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "成功响应。注意：实际返回值为 Code: 20100, Msg: 'create a new Admin successfully'",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
-        "/api/v1/private/admin/{id}/status": {
-            "patch": {
-                "description": "only allow supreme admin(Role=999) do this. 1--active 2--disabled.",
+        "/api/v1/private/admin/{id}": {
+            "delete": {
+                "description": "only allow supreme admin(Role=999) do this.",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "update admin status",
+                "summary": "Delete an admin",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "type": "integer",
-                        "description": "admin or writer ID",
+                        "description": "admin ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应。实际返回值为 Msg: 'delete Admin status successfully'",
+                        "schema": {
+                            "type": "200"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/admin/{id}/status": {
+            "patch": {
+                "description": "only allow supreme admin(Role=999) do this. 1--active 2--disabled.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "update an admin status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "admin ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -229,15 +302,22 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "成功响应。实际返回值为 Msg: 'update Admin status successfully'}",
+                        "schema": {
+                            "type": "200"
+                        }
+                    }
+                }
             }
         },
-        "/api/v1/private/author/{id}": {
-            "delete": {
+        "/api/v1/private/admins": {
+            "get": {
                 "tags": [
-                    "Author"
+                    "Admin"
                 ],
-                "summary": "Delete a post",
+                "summary": "Get admin list",
                 "parameters": [
                     {
                         "type": "string",
@@ -248,10 +328,15 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Author ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Page Number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {}
@@ -458,14 +543,16 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "pen_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 64
                 },
                 "real_name": {
                     "type": "string",
                     "maxLength": 20
                 },
                 "role": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 999
                 }
             }
         },
@@ -481,6 +568,20 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.AdminLoginResp": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string",
+                    "example": "admin"
+                },
+                "token": {
+                    "description": "可以顺手加个 example",
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1Ni... "
                 }
             }
         },
@@ -563,6 +664,10 @@ const docTemplate = `{
         },
         "dto.PostStatusReq": {
             "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -633,6 +738,27 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "maxLength": 100
+                }
+            }
+        },
+        "model.ResponseJson": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "used to indicate error to front-end engineer",
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {
+                    "description": "message to front-end user",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "0 means not set, use default status code",
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }

@@ -3,7 +3,11 @@ package dto
 // ==== AdminLoginReq
 type AdminLoginReq struct {
 	Name     string `json:"name" form:"name" validate:"required"`
-	Password string `json:"password" form:"password" validate:"required"`
+	Password string `json:"password" form:"password" validate:"required" binding:"required"`
+}
+type AdminLoginResp struct {
+	Token string `json:"token" example:"eyJhbGciOiJIUzI1Ni... "` // 可以顺手加个 example
+	Role  string `json:"role" example:"admin"`
 }
 
 type AdminAddReq struct {
@@ -13,8 +17,8 @@ type AdminAddReq struct {
 	Email    string `json:"email" form:"email" validate:"required,email"`    // 校验邮箱格式
 	Password string `json:"password" form:"password" validate:"required,min=6"`
 
-	Role    int    `json:"role" form:"role" validate:"required, max=999"`
-	PenName string `json:"pen_name" form:"pen_name" validate:"required, max=64"`
+	Role    int    `json:"role" form:"role" validate:"required,max=999"`
+	PenName string `json:"pen_name" form:"pen_name" validate:"required,max=64"`
 }
 
 // ==== Update

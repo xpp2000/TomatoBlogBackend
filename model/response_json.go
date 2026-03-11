@@ -8,8 +8,8 @@ import (
 
 type ResponseJson struct {
 	Status int    `json:"status,omitempty"` // 0 means not set, use default status code
-	Code   int    `json:"code,omitempty"`
-	Msg    string `json:"msg,omitempty"`
+	Code   int    `json:"code,omitempty"`   // used to indicate error to front-end engineer
+	Msg    string `json:"msg,omitempty"`    // message to front-end user
 	Data   any    `json:"data,omitempty"`
 	Total  int64  `json:"total,omitempty"`
 }
