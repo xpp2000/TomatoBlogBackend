@@ -270,13 +270,20 @@ paths:
       - Admin
   /api/v1/post/{slug_or_id}:
     get:
+      description: '** url参数可以为slug或id **'
       parameters:
       - description: Post ID or Slug
         in: path
         name: slug_or_id
         required: true
         type: string
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: publish successfully" "成功
+          schema:
+            type: "200"
       summary: Get post details
       tags:
       - Post
@@ -384,11 +391,11 @@ paths:
       - Admin
   /api/v1/private/admins:
     get:
+      description: paginate admin. Requires super admin privileges (role=999).
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Page Number
         in: query
@@ -398,7 +405,19 @@ paths:
         in: query
         name: page_size
         type: integer
-      responses: {}
+      responses:
+        "200":
+          description: Successfully retrieved admin list
+          schema:
+            type: "200"
+        "400":
+          description: Invalid URL parameters
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Get admin list
       tags:
       - Admin
@@ -439,6 +458,8 @@ paths:
       - Category
   /api/v1/private/post:
     post:
+      consumes:
+      - application/json
       parameters:
       - description: Bearer Token
         in: header
@@ -451,7 +472,16 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.PostAddReq'
-      responses: {}
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ResponseJson'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdminLoginResp'
+              type: object
       summary: Create a new post
       tags:
       - Post

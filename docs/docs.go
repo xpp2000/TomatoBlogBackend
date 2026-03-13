@@ -145,6 +145,10 @@ const docTemplate = `{
         },
         "/api/v1/post/{slug_or_id}": {
             "get": {
+                "description": "** url参数可以为slug或id **",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Post"
                 ],
@@ -158,7 +162,14 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "publish successfully\" \"成功",
+                        "schema": {
+                            "type": "200"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/posts": {
@@ -314,6 +325,7 @@ const docTemplate = `{
         },
         "/api/v1/private/admins": {
             "get": {
+                "description": "paginate admin. Requires super admin privileges (role=999).",
                 "tags": [
                     "Admin"
                 ],
@@ -323,8 +335,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "type": "integer",
@@ -339,7 +350,26 @@ const docTemplate = `{
                         "in": "query"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved admin list",
+                        "schema": {
+                            "type": "200"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid URL parameters",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/private/category": {
@@ -396,6 +426,9 @@ const docTemplate = `{
         },
         "/api/v1/private/post": {
             "post": {
+                "consumes": [
+                    "application/json"
+                ],
                 "tags": [
                     "Post"
                 ],
@@ -418,7 +451,26 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ResponseJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdminLoginResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         },
         "/api/v1/private/post/{id}": {

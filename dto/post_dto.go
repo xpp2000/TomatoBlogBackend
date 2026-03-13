@@ -17,20 +17,20 @@ type PostAddReq struct {
 }
 
 type PostUpdateReq struct {
-	ID       uint64 `json:"id"`
-	Title    string `json:"title" validate:"required,max=100"`
-	Subtitle string `json:"subtitle" validate:"omitempty,max=150"`
-	Slug     string `json:"slug" validate:"omitempty,max=100"`
-	Summary  string `json:"summary" validate:"omitempty,max=255"`
-	Keywords string `json:"keywords" validate:"omitempty,max=255"`
-	Content  string `json:"content" validate:"required"`
-	Cover    string `json:"cover" validate:"omitempty,url"`
+	ID       uint64  `json:"id"`
+	Title    *string `json:"title" validate:"required,min=1,max=100"`
+	Subtitle *string `json:"subtitle" validate:"omitempty,max=150"`
+	Slug     *string `json:"slug" validate:"omitempty,max=100"`
+	Summary  *string `json:"summary" validate:"omitempty,max=255"`
+	Keywords *string `json:"keywords" validate:"omitempty,max=255"`
+	Content  *string `json:"content" validate:"required"`
+	Cover    *string `json:"cover" validate:"omitempty,url"`
 	// 分类通常是必填的，即使不改也要传原值
-	CategoryID uint64 `json:"category_id" validate:"required,gt=0"`
+	CategoryID *uint64 `json:"category_id" validate:"required,gt=0"`
 	// 标签 ID 列表 (全量覆盖)
 	Tags []string `json:"tags" validate:"omitempty"`
 	// 状态 (例如想把已发布改为草稿)
-	Status int `json:"status" validate:"oneof=0 1 2"`
+	Status *int `json:"status" validate:"oneof=0 1 2"`
 }
 
 type PostStatusReq struct {
@@ -76,7 +76,7 @@ type AuthorListReq struct {
 
 /* ===== Author end ===== */
 
-/* ===== View dto begin ====== */
+/* ===== Response dto begin ====== */
 type CategorySimple struct {
 	ID          uint64 `json:"id" `
 	Name        string `json:"name" `
@@ -127,4 +127,24 @@ type PostSimple struct {
 	ReadCount   uint64 `json:"read_count" `
 }
 
-/* ===== View dto end ====== */
+// PostListResp 专门用于响应文章列表（供前端和 Swagger 识别）
+type PostListResp struct {
+	List  []*PostSimple `json:"list"`  // 文章列表
+	Total int64         `json:"total"` // 总记录数
+	Page  int           `json:"page"`  // 当前页码
+}
+
+// CategoryListResp 专门用于响应文章列表（供前端和 Swagger 识别）
+type CategoryListResp struct {
+	List  []*CategorySimple `json:"list"`  // 文章列表
+	Total int64             `json:"total"` // 总记录数
+	Page  int               `json:"page"`  // 当前页码
+}
+
+type AuthorListResp struct {
+	List  []*AuthorSimple `json:"list"`  // 文章列表
+	Total int64           `json:"total"` // 总记录数
+	Page  int             `json:"page"`  // 当前页码
+}
+
+/* ===== Response dto end ====== */

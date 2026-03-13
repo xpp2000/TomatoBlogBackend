@@ -192,29 +192,33 @@ func (m *AdminApi) DeleteAdmin(ctx iris.Context) {
 
 // @Tags Admin
 // @Summary Get admin list
-// @Param Authorization header string true "Bearer Token"
+// @Description paginate admin. Requires super admin privileges (role=999).
+// @Param Authorization header string false "Bearer Token"
 // @Param page query int false "Page Number"
 // @Param page_size query int false "Page Size"
+// @Success 200 200 {object} model.ResponseJson{data=dto.AdminListResp} "Successfully retrieved admin list"
+// @Failure 400 {object} model.ResponseJson "Invalid URL parameters"
+// @Failure 403 {object} model.ResponseJson "Permission denied"
 // @Router /api/v1/private/admins [get]
 func (m *AdminApi) ListAdmins(ctx iris.Context) {
 	m.SetContext(ctx)
 	// 1. permission check
 	role := ctx.Values().GetIntDefault("current_user_role", 1)
 	if role != 999 {
-		m.Fail(model.ResponseJson{Msg: "Permission denied: strictly for super admin"})
+		m.HandleError(ctx, errcode.ErrPermissionDenied)
 		return
 	}
 
 	// 2. bind req (GET parameters)
 	var req dto.AdminListReq
 	if err := ctx.ReadQuery(&req); err != nil {
-		m.Fail(model.ResponseJson{Msg: "Invalid query parameters: " + err.Error()})
+		m.HandleError(ctx, errcode.NewBizErr(40001, "URL para invalid: "+err.Error()))
 		return
 	}
 	// 3. call service
 	list, total, err := m.Service.GetAdminList(req)
 	if err != nil {
-		m.Fail(model.ResponseJson{Msg: "fail to get admin list: " + err.Error()})
+		m.HandleError(ctx, err)
 		return
 	}
 

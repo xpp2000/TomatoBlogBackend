@@ -2,7 +2,22 @@ package errcode
 
 import "net/http"
 
+// ==== conserve code ====
+// 40001 'URL para invalid: '
+
 var (
+	// = others
+	ErrPermissionDenied = &AppError{
+		HttpCode: http.StatusForbidden,
+		BizCode:  40300,
+		Msg:      "Permission denied"}
+
+	ErrURLParamInvalid = &AppError{
+		HttpCode: http.StatusBadRequest,
+		BizCode:  40001,
+		Msg:      " Invalid URL parameter(s)"}
+
+	/* --------------- Admin start --------------- */
 	// = 400级别
 	ErrEmailExist         = NewBizErr(4000101, "Email has existed")
 	ErrMobileExist        = NewBizErr(4000102, "Phone number has been registered")
@@ -15,9 +30,20 @@ var (
 	ErrPassWordIncorrect  = NewBizErr(4000107, "The password is incorrect, pleas check again")
 	ErrAdminStatus        = NewBizErr(4000110, "Status can only be 1 | 2")
 	ErrDeletePostFirst    = NewBizErr(4000119, "Fail to delete admin or writer, please delete his/her posts first")
-	// = others
-	ErrPermissionDenied = &AppError{
-		HttpCode: http.StatusForbidden,
-		BizCode:  40300,
-		Msg:      "Permission denied"}
+	/* --------------- Admin end --------------- */
+
+	/* --------------- Post start --------------- */
+	ErrPostNotFound         = NewBizErr(4000201, "The post doesn't exist")
+	ErrAuthorNotMatch       = NewBizErr(4000202, "Permission denied, current author doesn't match")
+	ErrPostLocked           = NewBizErr(4000203, "the post has been locked, please let admin unlock it")
+	ErrCategoryNotFound     = NewBizErr(4000204, "Undefined category")
+	ErrCategoryDeleteRefuse = NewBizErr(4000205, "fail to delete: there are posts associated with this category")
+
+	/* --------------- Post end --------------- */
+
+	/* --------------- Author start --------------- */
+	ErrAuthorNotFound = NewBizErr(4000301, "The Author doesn't exists")
+
+	/* --------------- Author end --------------- */
+
 )

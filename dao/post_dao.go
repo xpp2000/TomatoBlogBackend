@@ -15,7 +15,7 @@ type IPostDao interface {
 	GetPostDetailByID(id uint64) (*model.Post, error)
 	GetPostDetailBySlug(slug string) (*model.Post, error)
 
-	UpdatePost(post *model.Post, tagIDs []uint64) error
+	UpdatePost(postID uint64, updateData map[string]interface{}, tagIDs []uint64, updateTags bool) error
 	UpdatePostStatus(id uint64, status int) error
 	DeletePost(id uint64) error
 	GetPostList(req dto.PostListReq) ([]*model.Post, int64, error)
@@ -132,30 +132,44 @@ func (d *PostDao) GetPostDetailBySlug(slug string) (*model.Post, error) {
 }
 
 // ==== UpdatePost
-func (d *PostDao) UpdatePost(post *model.Post, tagIDs []uint64) error {
+// UpdatePost 动态更新文章及其标签
+// postID: 目标文章ID
+// updateData: 需要更新的基础字段（利用 map 解决零值被忽略的问题）
+// tagIDs: 新的标签ID列表
+// updateTags: 标识是否需要更新标签（用于区分“未传标签”和“传入空数组主动清空标签”）
+func (d *PostDao) UpdatePost(postID uint64, updateData map[string]interface{}, tagIDs []uint64, updateTags bool) error {
 	return d.Orm.Transaction(func(tx *gorm.DB) error {
-		// 1. 更新基础字段 (Title, Content, etc.)
-		// 使用 Save 会保存所有字段，包括零值；使用 Updates 只更新非零值
-		// 这里推荐用 Model+Updates 指定 ID 进行更新
-		if err := tx.Model(&model.Post{}).Where("id = ?", post.ID).Updates(post).Error; err != nil {
-			return err
+
+		// 1. 更新基础字段 (Title, Content, Status 等)
+		// 只有当 map 里有数据时才执行主表更新
+		if len(updateData) > 0 {
+			// 使用 Map 更新：GORM 会忠实地将 map 里的 "" 或 0 更新到数据库，而不会忽略
+			if err := tx.Model(&model.Post{}).Where("id = ?", postID).Updates(updateData).Error; err != nil {
+				return err
+			}
 		}
 
 		// 2. 更新标签关联 (Many-to-Many)
-		// 这一步会自动：删除旧关联 + 插入新关联
-		if len(tagIDs) > 0 {
-			var tags []*model.Tag
-			for _, id := range tagIDs {
-				tags = append(tags, &model.Tag{ID: id})
-			}
-			// 替换关联
-			if err := tx.Model(post).Association("Tags").Replace(tags); err != nil {
-				return err
-			}
-		} else {
-			// 如果传了空数组，意味着清空所有标签
-			if err := tx.Model(post).Association("Tags").Clear(); err != nil {
-				return err
+		// 只有当明确要求更新标签时（前端传了 Tags 字段，即 updateTags == true）才执行
+		if updateTags {
+			// 构造一个只包含 ID 的结构体实例，供 GORM 识别主键以进行关联操作
+			// （假设你的模型主键字段名为 ID，如果有嵌套如 BaseModel 请按需调整）
+			post := &model.Post{BaseModel: model.BaseModel{ID: postID}}
+
+			if len(tagIDs) > 0 {
+				var tags []*model.Tag
+				for _, id := range tagIDs {
+					tags = append(tags, &model.Tag{ID: id})
+				}
+				// Replace: 会自动查出现有绑定，删除不需要的，插入新增的
+				if err := tx.Model(post).Association("Tags").Replace(tags); err != nil {
+					return err
+				}
+			} else {
+				// 如果传了空数组（且 updateTags 为 true），说明前端要主动清空所有标签
+				if err := tx.Model(post).Association("Tags").Clear(); err != nil {
+					return err
+				}
 			}
 		}
 

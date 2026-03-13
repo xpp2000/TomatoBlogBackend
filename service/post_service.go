@@ -6,9 +6,11 @@ import (
 	"time"
 	"tomatoBlogDB/dao"
 	"tomatoBlogDB/dto"
+	"tomatoBlogDB/errcode"
 	"tomatoBlogDB/model"
 
 	"github.com/gosimple/slug"
+	"gorm.io/gorm"
 )
 
 const ROLE_ADMIN = 999
@@ -67,7 +69,10 @@ func (s *PostService) GetPostDetail(param string) (*dto.PostSimple, error) {
 	}
 
 	if dbErr != nil {
-		return nil, dbErr
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errcode.ErrPostNotFound
+		}
+		return nil, errcode.NewSysErr(dbErr)
 	}
 
 	// 2. assembly respPost
@@ -109,7 +114,7 @@ func (s *PostService) GetPostDetail(param string) (*dto.PostSimple, error) {
 
 // ==== CreatePost
 // authorID: fetch from Controller layer via Token
-// NOTE: For writer and super admin
+// NOTE: For writer
 func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 	// 1. slug
 	finalSlug := req.Slug
@@ -124,7 +129,7 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 		var err error
 		tags, err = s.tagDao.GetOrCreateByNames(req.Tags)
 		if err != nil {
-			return err // 如果处理标签时数据库报错，直接抛出
+			return errcode.NewSysErr(err) // 如果处理标签时数据库报错，直接抛出
 		}
 	}
 
@@ -136,11 +141,17 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 		// 尝试按 RFC3339 解析
 		if t, err := time.Parse(time.RFC3339, req.PublishedAt); err == nil {
 			FinalPublishedAt = t
+		} else if t2, err2 := time.Parse(time.DateTime, req.PublishedAt); err2 == nil {
+			// 2. 尝试按 "YYYY-MM-DD HH:MM:SS" 解析
+			FinalPublishedAt = t2
+		} else if t3, err3 := time.Parse(time.DateOnly, req.PublishedAt); err3 == nil {
+			// 3. 尝试按 "YYYY-MM-DD" 解析 (Go 1.20+)
+			// 解析结果的默认时分秒会是 00:00:00
+			FinalPublishedAt = t3
 		} else {
-			// 如果你前端喜欢传 "2006-01-02 15:04:05" 这种普通格式，可以在这里加个 fallback
-			if t2, err2 := time.Parse(time.DateTime, req.PublishedAt); err2 == nil {
-				FinalPublishedAt = t2
-			}
+			// [强烈建议] 这里最好抛出错误或者打日志，防止前端传了乱码导致被默默吞掉并赋值为 now
+			// m.HandleError(ctx, fmt.Errorf("invalid time format: %s", req.PublishedAt))
+			// return
 		}
 	}
 
@@ -165,7 +176,11 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 	}
 
 	// 3.
-	return s.postDao.CreatePost(&post)
+	err := s.postDao.CreatePost(&post)
+	if err != nil {
+		return errcode.NewSysErr(err)
+	}
+	return nil
 }
 
 // ==== UpdatePost
@@ -176,50 +191,75 @@ func (s *PostService) UpdatePost(req dto.PostUpdateReq, operatorID uint64, opera
 	// 1. check post
 	post, err := s.postDao.GetPostByID(req.ID)
 	if err != nil {
-		return errors.New("the post doesn't exist or has been deleted")
+		return errcode.ErrPostNotFound
 	}
 
 	// 2. permission check
-	if operatorRole != ROLE_ADMIN && post.AuthorID != operatorID {
-		return errors.New("insufficient permission")
+	if post.AuthorID != operatorID {
+		if operatorRole != ROLE_ADMIN {
+			return errcode.ErrAuthorNotMatch
+		}
 	}
 
 	// 3. prepare data to be updated
 	// 注意：这里只赋值需要更新的字段，AuthorID 不需要赋值（禁止转让作者）
 
-	// 3.1 处理 TagsID（去数据库查找或创建标签）
-	var tags []*model.Tag // 提前声明，如果没有传入标签，它就是 nil
-	if len(req.Tags) > 0 {
-		var err error
-		tags, err = s.tagDao.GetOrCreateByNames(req.Tags)
-
-		if err != nil {
-			return err // 如果处理标签时数据库报错，直接抛出
+	// 3.1
+	updateData := make(map[string]interface{})
+	{
+		if req.Title != nil {
+			updateData["title"] = *req.Title
+		}
+		if req.Subtitle != nil {
+			updateData["subtitle"] = *req.Subtitle
+		}
+		if req.Summary != nil {
+			updateData["summary"] = *req.Summary
+		}
+		if req.Keywords != nil {
+			updateData["keywords"] = *req.Keywords
+		}
+		if req.Content != nil {
+			updateData["content"] = *req.Content
+		}
+		if req.Cover != nil {
+			updateData["cover"] = *req.Cover
+		}
+		if req.CategoryID != nil {
+			updateData["category_id"] = *req.CategoryID
+		}
+		if req.Status != nil {
+			updateData["status"] = *req.Status // 即使前端传了 0，也会被正确存入 map
+		}
+		finalSlug := req.Slug
+		if finalSlug != nil {
+			updateData["slug"] = *req.Slug
+		} else if req.Title != nil && post.Slug == "" {
+			// 只有当标题更新了，且原来没有 slug 时，才自动生成
+			updateData["slug"] = slug.Make(*req.Title)
 		}
 	}
+	// 3.2 Tags
 	var tagsID []uint64
-	for _, tag := range tags {
-		tagsID = append(tagsID, tag.ID)
+	if req.Tags != nil {
+		tags, err := s.tagDao.GetOrCreateByNames(req.Tags)
+		if err != nil {
+			return errcode.NewSysErr(err)
+		}
+		for _, tag := range tags {
+			tagsID = append(tagsID, tag.ID)
+		}
 	}
 
-	finalSlug := req.Slug
-	if finalSlug == "" {
-		finalSlug = slug.Make(req.Title)
-	}
-	updateData := model.Post{
-		BaseModel:  model.BaseModel{ID: req.ID}, // 必须指定 ID
-		Title:      req.Title,
-		Subtitle:   req.Subtitle,
-		Summary:    req.Summary,
-		Keywords:   req.Keywords,
-		Content:    req.Content,
-		Cover:      req.Cover,
-		Slug:       finalSlug, // 如果允许修改 Slug
-		CategoryID: req.CategoryID,
-		Status:     req.Status,
+	// 4.
+	if len(updateData) == 0 && req.Tags == nil {
+		return nil
 	}
 
-	return s.postDao.UpdatePost(&updateData, tagsID)
+	if err := s.postDao.UpdatePost(req.ID, updateData, tagsID, req.Tags != nil); err != nil {
+		return errcode.NewSysErr(err)
+	}
+	return nil
 }
 
 // ==== UpdateStatus
@@ -229,7 +269,7 @@ func (s *PostService) UpdateStatus(req dto.PostStatusReq, operatorID uint64, ope
 	// 1. search the post
 	post, err := s.postDao.GetPostByID(req.ID)
 	if err != nil {
-		return errors.New("The post doesn't exist")
+		return errcode.ErrPostNotFound
 	}
 
 	// 2. permission check
@@ -239,18 +279,18 @@ func (s *PostService) UpdateStatus(req dto.PostStatusReq, operatorID uint64, ope
 		// = user
 		// B1.
 		if post.AuthorID != operatorID {
-			return errors.New("permission deny")
+			return errcode.ErrAuthorNotMatch
 		}
 		// B2.
 		if post.Status == 2 {
-			return errors.New("the post has been locked, please let admin unlock it")
+			return errcode.ErrPostLocked
 		}
 	}
 
 	// 3.  execute
 	err = s.postDao.UpdatePostStatus(req.ID, req.Status)
 	if err != nil {
-		return err
+		return errcode.NewSysErr(err)
 	}
 
 	return nil
@@ -264,12 +304,12 @@ func (s *PostService) DeletePost(id uint64, operatorID uint64, operatorRole int)
 	// 1. check post
 	post, err := s.postDao.GetPostByID(id)
 	if err != nil {
-		return errors.New("the post doesn't exist")
+		return errcode.ErrPostNotFound
 	}
 
 	// 2. permission check
 	if operatorID != ROLE_ADMIN && post.AuthorID != operatorID {
-		return errors.New("permission denied")
+		return errcode.ErrPermissionDenied
 	}
 	// 3. delete
 	return s.postDao.DeletePost(id)
@@ -341,7 +381,7 @@ func (s *PostService) GetPostList(req dto.PostListReq) ([]*dto.PostSimple, int64
 func (s *CategoryService) CreateCategory(req dto.CategoryAddReq, operatorRole int) error {
 	// 1. permission check
 	if operatorRole != ROLE_ADMIN {
-		return errors.New("permission denied")
+		return errcode.ErrPermissionDenied
 	}
 
 	// 2. call dao
@@ -349,7 +389,10 @@ func (s *CategoryService) CreateCategory(req dto.CategoryAddReq, operatorRole in
 		Name:        req.Name,
 		Description: req.Description,
 	}
-	return s.categoryDao.CreateCategory(cate)
+	if err := s.categoryDao.CreateCategory(cate); err != nil {
+		return errcode.NewSysErr(err)
+	}
+	return nil
 
 }
 
@@ -368,7 +411,10 @@ func (s *CategoryService) GetCategoryDetail(param string) (*model.Category, erro
 	}
 
 	if dbErr != nil {
-		return nil, dbErr
+		if errors.Is(dbErr, gorm.ErrRecordNotFound) {
+			return nil, errcode.ErrCategoryNotFound
+		}
+		return nil, errcode.NewSysErr(dbErr)
 	}
 	// 2. category operations
 	// -2.1 asynchronously increasing
@@ -406,24 +452,27 @@ func (s *CategoryService) DeleteCategory(id uint64, role int) error {
 	// 1. validate foreign key
 	count, err := s.postDao.CountByCategoryID(id)
 	if err != nil {
-		return err // 数据库查询出错
+		return errcode.NewSysErr(err) // 数据库查询出错
 	}
 	// restrict
 	if count > 0 {
-		return errors.New("cannot delete: there are posts associated with this category")
+		return errcode.ErrCategoryDeleteRefuse
 	}
 
 	// 2. check post
 	_, err = s.categoryDao.GetCategoryByID(id)
 	if err != nil {
-		return errors.New("the category doesn't exist")
+		return errcode.ErrCategoryNotFound
 	}
 	// 3. permission check
 	if role != ROLE_ADMIN {
-		return errors.New("permission denied")
+		return errcode.ErrPermissionDenied
 	}
 	// 4.
-	return s.categoryDao.DeleteCategory(id)
+	if errDB := s.categoryDao.DeleteCategory(id); errDB != nil {
+		return errcode.NewSysErr(errDB)
+	}
+	return nil
 }
 
 // ==== CreateAuthor
@@ -459,7 +508,10 @@ func (s *AuthorService) GetAuthorDetail(param string) (*model.Author, error) {
 		author, dbErr = s.authorDao.GetAuthorByName(param)
 	}
 	if dbErr != nil {
-		return nil, dbErr
+		if errors.Is(dbErr, gorm.ErrRecordNotFound) {
+			return nil, errcode.ErrPostNotFound
+		}
+		return nil, errcode.NewSysErr(dbErr)
 	}
 
 	// 2. author operations
@@ -482,7 +534,7 @@ func (s *AuthorService) GetAuthorList(req dto.AuthorListReq) ([]*dto.AuthorSimpl
 	// 2. DAO
 	authors, total, err := s.authorDao.GetAuthorList(req)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errcode.NewSysErr(err)
 	}
 
 	// 3. post operations

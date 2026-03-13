@@ -53,6 +53,7 @@ func (m *BaseApi) GetError() error {
 	return m.Errors
 }
 
+// ! Note:  Don't add HandleErr after BuildRequest()
 // BuildRequest return bool, if false: fail to bind or validate, Controller should return directly
 // = 40091XX bizCode to track BuildRequest()
 func (m *BaseApi) BuildRequest(option BuildRequestOption) bool {
