@@ -133,6 +133,10 @@ func InitRouter() {
 
 	rgApi := app.Party("/")
 	rgAdmin := app.Party("/admin")
+
+	// 全局2MB限制，对于Upload再单独放宽
+	rgApi.Use(iris.LimitRequestBodySize(2 << 20))
+
 	rgAdmin.Use(middleware.Auth())
 
 	// = register module routers

@@ -69,7 +69,8 @@ func (m *PostApi) GetPost(ctx iris.Context) {
 // @Tags Post
 // @Summary Create a new post
 // @Description - 可以指定slug，但建议置为空，让程序自动生成
-// @Description - published_at: 发布时间。支持三种格式："2006-01-02T15:04:05Z07:00" (RFC3339)、"2006-01-02 15:04:05" (精确到秒) 或 "2006-01-02" (仅年月日)。若留空则默认为当前时间。
+// @Description - published_at: 发布时间,RFC3339格式："2006-01-02T15:04:05Z07:00" 。若留空则默认为当前时间。
+// @Description - 后门字段target_author_id,仅当超级管理员时生效
 // @Accept json
 // @Param Authorization header string false "Bearer Token"
 // @Param body body dto.PostAddReq true "Post Info"
@@ -86,6 +87,7 @@ func (m *PostApi) AddPost(ctx iris.Context) {
 
 	// 2. get current user ID
 	authorID := ctx.Values().GetUint64Default("current_user_id", 0)
+	operatorRole := ctx.Values().GetIntDefault("current_user_role", 0)
 	if authorID == 0 {
 		// - as expected, middleware has already blocked
 		m.HandleError(ctx, errcode.ErrAuthorNotMatch)
@@ -93,9 +95,9 @@ func (m *PostApi) AddPost(ctx iris.Context) {
 	}
 
 	// 3. call Service(pass into sate authorID)
-	err := m.Service.CreatePost(req, authorID)
+	err := m.Service.CreatePost(req, authorID, operatorRole)
 	if err != nil {
-		m.Fail(model.ResponseJson{Msg: "fail to publish " + err.Error()})
+		m.HandleError(ctx, err)
 		return
 	}
 	m.Ok(model.ResponseJson{Msg: "publish successfully"})

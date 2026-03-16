@@ -60,6 +60,35 @@ definitions:
         - 2
         type: integer
     type: object
+  dto.AuthorListResp:
+    properties:
+      list:
+        description: 文章列表
+        items:
+          $ref: '#/definitions/dto.AuthorSimple'
+        type: array
+      page:
+        description: 当前页码
+        type: integer
+      total:
+        description: 总记录数
+        type: integer
+    type: object
+  dto.AuthorSimple:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      mobile:
+        type: string
+      pen_name:
+        type: string
+      position:
+        type: string
+    type: object
   dto.CategoryAddReq:
     properties:
       description:
@@ -71,19 +100,45 @@ definitions:
     required:
     - name
     type: object
+  dto.CategoryListResp:
+    properties:
+      list:
+        description: 文章列表
+        items:
+          $ref: '#/definitions/dto.CategorySimple'
+        type: array
+      page:
+        description: 当前页码
+        type: integer
+      total:
+        description: 总记录数
+        type: integer
+    type: object
+  dto.CategorySimple:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   dto.PostAddReq:
     properties:
       category_id:
         type: integer
       content:
+        maxLength: 50000
         type: string
       cover:
+        maxLength: 2048
         type: string
       keywords:
         maxLength: 255
         type: string
       published_at:
         description: 'RFC3339 "published_at": "2026-02-27T18:00:00+08:00"'
+        maxLength: 30
         type: string
       slug:
         maxLength: 100
@@ -95,9 +150,18 @@ definitions:
         maxLength: 255
         type: string
       tags:
+        description: |-
+          Tags 是切片，需要双重限制：限制切片元素个数，以及限制每个元素的长度
+          max=10 表示最多 10 个标签
+          dive 表示深入到切片内部验证
+          后面的 max=30 表示每个标签字符串最多 30 个字符
         items:
           type: string
+        maxItems: 10
         type: array
+      target_author_id:
+        description: == supreme admin only
+        type: integer
       title:
         maxLength: 100
         type: string
@@ -105,6 +169,70 @@ definitions:
     - category_id
     - content
     - title
+    type: object
+  dto.PostListResp:
+    properties:
+      list:
+        description: 文章列表
+        items:
+          $ref: '#/definitions/dto.PostSimple'
+        type: array
+      page:
+        description: 当前页码
+        type: integer
+      total:
+        description: 总记录数
+        type: integer
+    type: object
+  dto.PostSimple:
+    properties:
+      author:
+        $ref: '#/definitions/dto.AuthorSimple'
+      author_id:
+        description: |-
+          关联作者 (Belongs To)
+          这里的 Admin 对应你之前的 Admin/User 结构体
+        type: integer
+      category_id:
+        description: |-
+          关联分类 (Belongs To)
+          一篇文章通常属于一个主分类
+        type: integer
+      category_name:
+        type: string
+      content:
+        type: string
+      cover:
+        description: |-
+          视觉相关
+          列表页展示的封面图，不是正文里的图w
+        type: string
+      id:
+        type: integer
+      keywords:
+        type: string
+      published_at:
+        type: string
+      read_count:
+        type: integer
+      slug:
+        type: string
+      status:
+        description: Status Control
+        type: integer
+      subtitle:
+        type: string
+      summary:
+        type: string
+      tags:
+        description: |-
+          关联标签 (Many To Many)
+          一篇文章可以有多个标签
+        items:
+          type: string
+        type: array
+      title:
+        type: string
     type: object
   dto.PostStatusReq:
     properties:
@@ -126,8 +254,10 @@ definitions:
         description: 分类通常是必填的，即使不改也要传原值
         type: integer
       content:
+        maxLength: 50000
         type: string
       cover:
+        maxLength: 2048
         type: string
       id:
         type: integer
@@ -154,9 +284,11 @@ definitions:
         description: 标签 ID 列表 (全量覆盖)
         items:
           type: string
+        maxItems: 10
         type: array
       title:
         maxLength: 100
+        minLength: 1
         type: string
     required:
     - category_id
@@ -186,55 +318,97 @@ info:
 paths:
   /api/v1/author/{name_or_id}:
     get:
+      description: 根据作者 ID 或名称 (PenName/Username) 获取作者详情。支持灵活查询。
       parameters:
       - description: Author Name or ID
         in: path
         name: name_or_id
         required: true
         type: string
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取作者详情成功
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Get author details
       tags:
       - Author
   /api/v1/authors:
     get:
+      description: 分页获取作者列表
       parameters:
-      - description: Page Number
+      - default: 1
+        description: Page Number (页码，默认 1)
         in: query
         name: page
         type: integer
-      - description: Page Size
+      - default: 10
+        description: Page Size (每页数量，默认 10)
         in: query
         name: page_size
         type: integer
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取作者列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ResponseJson'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AuthorListResp'
+              type: object
       summary: Get author list
       tags:
       - Author
   /api/v1/categories:
     get:
+      description: 分页获取分类列表
       parameters:
-      - description: Page Number
+      - default: 1
+        description: Page Number (页码，默认 1)
         in: query
         name: page
         type: integer
-      - description: Page Size
+      - default: 10
+        description: Page Size (每页数量，默认 10)
         in: query
         name: page_size
         type: integer
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取分类列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ResponseJson'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.CategoryListResp'
+              type: object
       summary: Get category list
       tags:
       - Category
   /api/v1/category/{name_or_id}:
     get:
+      description: 根据分类 ID 或分类名称获取分类详情。支持灵活查询
       parameters:
-      - description: Post ID or Name
+      - description: Category ID or Name (分类的 ID 或名称)
         in: path
         name: name_or_id
         required: true
         type: string
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取分类详情成功
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Get category details
       tags:
       - Category
@@ -281,7 +455,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: publish successfully" "成功
+          description: 成功
           schema:
             type: "200"
       summary: Get post details
@@ -289,12 +463,19 @@ paths:
       - Post
   /api/v1/posts:
     get:
+      consumes:
+      - application/json
+      description: |-
+        获取文章列表（支持分页）。
+        注意：为了优化传输性能，列表接口返回的 Post 对象不包含 Content (文章正文)。
       parameters:
-      - description: Page Number
+      - default: 1
+        description: '页码 (默认: 1)'
         in: query
         name: page
         type: integer
-      - description: Page Size
+      - default: 10
+        description: '每页数量 (默认: 10, 最大: 100)'
         in: query
         name: page_size
         type: integer
@@ -302,7 +483,18 @@ paths:
         in: query
         name: keyword
         type: string
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取列表成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ResponseJson'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.PostListResp'
+              type: object
       summary: Get post list
       tags:
       - Post
@@ -423,11 +615,15 @@ paths:
       - Admin
   /api/v1/private/category:
     post:
+      consumes:
+      - application/json
+      description: |-
+        创建一个新分类。
+        权限要求：仅限系统管理员 (Role=Admin) 可以执行此操作。
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Post Info
         in: body
@@ -435,36 +631,53 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.CategoryAddReq'
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: create a new category successfully
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Create a new category
       tags:
       - Category
   /api/v1/private/category/{id}:
     delete:
+      description: |-
+        删除指定的分类
+        权限要求：通常仅限系统管理员 (Role=Admin) 可以执行此操作。
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Category ID
         in: path
         name: id
         required: true
         type: integer
-      responses: {}
-      summary: Delete a post
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
+      summary: Delete a category
       tags:
       - Category
   /api/v1/private/post:
     post:
       consumes:
       - application/json
+      description: |-
+        - 可以指定slug，但建议置为空，让程序自动生成
+        - published_at: 发布时间,RFC3339格式："2006-01-02T15:04:05Z07:00" 。若留空则默认为当前时间。
+        - 后门字段target_author_id,仅当超级管理员时生效
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Post Info
         in: body
@@ -474,63 +687,78 @@ paths:
           $ref: '#/definitions/dto.PostAddReq'
       responses:
         "200":
-          description: 成功
+          description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/model.ResponseJson'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.AdminLoginResp'
-              type: object
+            type: "200"
       summary: Create a new post
       tags:
       - Post
   /api/v1/private/post/{id}:
     delete:
+      description: |-
+        删除指定的文章（注意：此操作为软删除，数据仍在数据库中，只是被标记为已删除）。
+        权限要求：仅限文章原作者或系统管理员(Role=Admin)可以执行此操作。
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Post ID
         in: path
         name: id
         required: true
         type: integer
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: delete Post status successfully / 删除成功
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Delete a post
       tags:
       - Post
     put:
+      consumes:
+      - application/json
+      description: |-
+        更新文章内容。支持部分更新（动态 PATCH 逻辑）：前端只需传入需要修改的字段，未传入的字段将保持原样。
+        注意：不支持修改文章作者。仅限文章原作者或系统管理员操作。
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Post ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Update Info
+      - description: Update Info(仅传需要修改的字段)
         in: body
         name: body
         required: true
         schema:
           $ref: '#/definitions/dto.PostUpdateReq'
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: update successfully
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Update a post
       tags:
       - Post
   /api/v1/private/post/{id}/status:
     patch:
+      consumes:
+      - application/json
+      description: Update status field
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
         type: string
       - description: Post ID
         in: path
@@ -543,7 +771,13 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.PostStatusReq'
-      responses: {}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: update successfully
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
       summary: Change post status
       tags:
       - Post

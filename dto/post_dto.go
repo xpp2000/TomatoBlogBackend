@@ -8,12 +8,19 @@ type PostAddReq struct {
 	Summary  string `json:"summary" validate:"omitempty,max=255"`
 	Keywords string `json:"keywords" validate:"omitempty,max=255"`
 
-	Content string `json:"content" validate:"required"`
-	Cover   string `json:"cover" validate:"omitempty,url"`
+	Content string `json:"content" validate:"required,max=50000"`
+	Cover   string `json:"cover" validate:"omitempty,url,max=2048"`
 
-	CategoryID  uint64   `json:"category_id" validate:"required,gt=0"`
-	Tags        []string `json:"tags" validate:"omitempty"`         //
-	PublishedAt string   `json:"published_at" validate:"omitempty"` // RFC3339 "published_at": "2026-02-27T18:00:00+08:00"
+	CategoryID uint64 `json:"category_id" validate:"required,gt=0"`
+	// Tags 是切片，需要双重限制：限制切片元素个数，以及限制每个元素的长度
+	// max=10 表示最多 10 个标签
+	// dive 表示深入到切片内部验证
+	// 后面的 max=30 表示每个标签字符串最多 30 个字符
+	Tags        []string `json:"tags" validate:"omitempty,max=10,dive,max=30"`                                //
+	PublishedAt string   `json:"published_at" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00,max=30"` // RFC3339 "published_at": "2026-02-27T18:00:00+08:00"
+
+	// == supreme admin only
+	TargetAuthorID uint64 `json:"target_author_id" validate:"omitempty,gt=0"`
 }
 
 type PostUpdateReq struct {
@@ -23,12 +30,12 @@ type PostUpdateReq struct {
 	Slug     *string `json:"slug" validate:"omitempty,max=100"`
 	Summary  *string `json:"summary" validate:"omitempty,max=255"`
 	Keywords *string `json:"keywords" validate:"omitempty,max=255"`
-	Content  *string `json:"content" validate:"required"`
-	Cover    *string `json:"cover" validate:"omitempty,url"`
+	Content  *string `json:"content" validate:"required,max=50000"`
+	Cover    *string `json:"cover" validate:"omitempty,url,max=2048"`
 	// 分类通常是必填的，即使不改也要传原值
 	CategoryID *uint64 `json:"category_id" validate:"required,gt=0"`
 	// 标签 ID 列表 (全量覆盖)
-	Tags []string `json:"tags" validate:"omitempty"`
+	Tags []string `json:"tags" validate:"omitempty,max=10,dive,max=30"`
 	// 状态 (例如想把已发布改为草稿)
 	Status *int `json:"status" validate:"oneof=0 1 2"`
 }

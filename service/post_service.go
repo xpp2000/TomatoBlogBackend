@@ -115,7 +115,7 @@ func (s *PostService) GetPostDetail(param string) (*dto.PostSimple, error) {
 // ==== CreatePost
 // authorID: fetch from Controller layer via Token
 // NOTE: For writer
-func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
+func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64, operatorRole int) error {
 	// 1. slug
 	finalSlug := req.Slug
 	if finalSlug == "" {
@@ -160,6 +160,12 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 		FinalPublishedAt = now
 	}
 	// 4. assemble model
+	//  4.1 back-door for admin
+	var finalAuthorID uint64 = authorID
+	if operatorRole == 999 {
+		finalAuthorID = req.TargetAuthorID
+	}
+	// 4.2
 	post := model.Post{
 		Title:       req.Title,
 		Slug:        finalSlug,
@@ -168,7 +174,7 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64) error {
 		Keywords:    req.Keywords,
 		Content:     req.Content,
 		Cover:       req.Cover,
-		AuthorID:    authorID,
+		AuthorID:    finalAuthorID,
 		CategoryID:  req.CategoryID,
 		Tags:        tags,
 		Status:      1,

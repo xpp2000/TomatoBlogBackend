@@ -10,6 +10,10 @@
     "paths": {
         "/api/v1/author/{name_or_id}": {
             "get": {
+                "description": "根据作者 ID 或名称 (PenName/Username) 获取作者详情。支持灵活查询。",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Author"
                 ],
@@ -23,11 +27,22 @@
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "获取作者详情成功",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/authors": {
             "get": {
+                "description": "分页获取作者列表",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Author"
                 ],
@@ -35,22 +50,47 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page Number",
+                        "default": 1,
+                        "description": "Page Number (页码，默认 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page Size",
+                        "default": 10,
+                        "description": "Page Size (每页数量，默认 10)",
                         "name": "page_size",
                         "in": "query"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "获取作者列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ResponseJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AuthorListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         },
         "/api/v1/categories": {
             "get": {
+                "description": "分页获取分类列表",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Category"
                 ],
@@ -58,22 +98,47 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page Number",
+                        "default": 1,
+                        "description": "Page Number (页码，默认 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page Size",
+                        "default": 10,
+                        "description": "Page Size (每页数量，默认 10)",
                         "name": "page_size",
                         "in": "query"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "获取分类列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ResponseJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.CategoryListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         },
         "/api/v1/category/{name_or_id}": {
             "get": {
+                "description": "根据分类 ID 或分类名称获取分类详情。支持灵活查询",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Category"
                 ],
@@ -81,13 +146,20 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Post ID or Name",
+                        "description": "Category ID or Name (分类的 ID 或名称)",
                         "name": "name_or_id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "获取分类详情成功",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/login": {
@@ -157,7 +229,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "publish successfully\" \"成功",
+                        "description": "成功",
                         "schema": {
                             "type": "200"
                         }
@@ -167,6 +239,13 @@
         },
         "/api/v1/posts": {
             "get": {
+                "description": "获取文章列表（支持分页）。\n注意：为了优化传输性能，列表接口返回的 Post 对象不包含 Content (文章正文)。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Post"
                 ],
@@ -174,13 +253,15 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page Number",
+                        "default": 1,
+                        "description": "页码 (默认: 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page Size",
+                        "default": 10,
+                        "description": "每页数量 (默认: 10, 最大: 100)",
                         "name": "page_size",
                         "in": "query"
                     },
@@ -191,7 +272,26 @@
                         "in": "query"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "获取列表成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ResponseJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.PostListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         },
         "/api/v1/private/admin": {
@@ -367,6 +467,13 @@
         },
         "/api/v1/private/category": {
             "post": {
+                "description": "创建一个新分类。\n权限要求：仅限系统管理员 (Role=Admin) 可以执行此操作。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Category"
                 ],
@@ -376,8 +483,7 @@
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "description": "Post Info",
@@ -389,22 +495,32 @@
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "create a new category successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/private/category/{id}": {
             "delete": {
+                "description": "删除指定的分类\n权限要求：通常仅限系统管理员 (Role=Admin) 可以执行此操作。",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Category"
                 ],
-                "summary": "Delete a post",
+                "summary": "Delete a category",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "type": "integer",
@@ -414,11 +530,19 @@
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/private/post": {
             "post": {
+                "description": "- 可以指定slug，但建议置为空，让程序自动生成\n- published_at: 发布时间,RFC3339格式：\"2006-01-02T15:04:05Z07:00\" 。若留空则默认为当前时间。\n- 后门字段target_author_id,仅当超级管理员时生效",
                 "consumes": [
                     "application/json"
                 ],
@@ -431,8 +555,7 @@
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "description": "Post Info",
@@ -446,21 +569,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.ResponseJson"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.AdminLoginResp"
-                                        }
-                                    }
-                                }
-                            ]
+                            "type": "200"
                         }
                     }
                 }
@@ -468,6 +579,13 @@
         },
         "/api/v1/private/post/{id}": {
             "put": {
+                "description": "更新文章内容。支持部分更新（动态 PATCH 逻辑）：前端只需传入需要修改的字段，未传入的字段将保持原样。\n注意：不支持修改文章作者。仅限文章原作者或系统管理员操作。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Post"
                 ],
@@ -477,8 +595,7 @@
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "type": "integer",
@@ -488,7 +605,7 @@
                         "required": true
                     },
                     {
-                        "description": "Update Info",
+                        "description": "Update Info(仅传需要修改的字段)",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -497,9 +614,20 @@
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "update successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             },
             "delete": {
+                "description": "删除指定的文章（注意：此操作为软删除，数据仍在数据库中，只是被标记为已删除）。\n权限要求：仅限文章原作者或系统管理员(Role=Admin)可以执行此操作。",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Post"
                 ],
@@ -509,8 +637,7 @@
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "type": "integer",
@@ -520,11 +647,25 @@
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "delete Post status successfully / 删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/private/post/{id}/status": {
             "patch": {
+                "description": "Update status field",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Post"
                 ],
@@ -534,8 +675,7 @@
                         "type": "string",
                         "description": "Bearer Token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     },
                     {
                         "type": "integer",
@@ -554,7 +694,14 @@
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "update successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
             }
         }
     },
@@ -642,6 +789,49 @@
                 }
             }
         },
+        "dto.AuthorListResp": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "文章列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.AuthorSimple"
+                    }
+                },
+                "page": {
+                    "description": "当前页码",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.AuthorSimple": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "pen_name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CategoryAddReq": {
             "type": "object",
             "required": [
@@ -658,6 +848,40 @@
                 }
             }
         },
+        "dto.CategoryListResp": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "文章列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CategorySimple"
+                    }
+                },
+                "page": {
+                    "description": "当前页码",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.CategorySimple": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.PostAddReq": {
             "type": "object",
             "required": [
@@ -670,10 +894,12 @@
                     "type": "integer"
                 },
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50000
                 },
                 "cover": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 2048
                 },
                 "keywords": {
                     "type": "string",
@@ -681,7 +907,8 @@
                 },
                 "published_at": {
                     "description": "RFC3339 \"published_at\": \"2026-02-27T18:00:00+08:00\"",
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30
                 },
                 "slug": {
                     "type": "string",
@@ -696,14 +923,101 @@
                     "maxLength": 255
                 },
                 "tags": {
+                    "description": "Tags 是切片，需要双重限制：限制切片元素个数，以及限制每个元素的长度\nmax=10 表示最多 10 个标签\ndive 表示深入到切片内部验证\n后面的 max=30 表示每个标签字符串最多 30 个字符",
+                    "type": "array",
+                    "maxItems": 10,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "target_author_id": {
+                    "description": "== supreme admin only",
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
+        "dto.PostListResp": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "文章列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PostSimple"
+                    }
+                },
+                "page": {
+                    "description": "当前页码",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.PostSimple": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/dto.AuthorSimple"
+                },
+                "author_id": {
+                    "description": "关联作者 (Belongs To)\n这里的 Admin 对应你之前的 Admin/User 结构体",
+                    "type": "integer"
+                },
+                "category_id": {
+                    "description": "关联分类 (Belongs To)\n一篇文章通常属于一个主分类",
+                    "type": "integer"
+                },
+                "category_name": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "description": "视觉相关\n列表页展示的封面图，不是正文里的图w",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "read_count": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status Control",
+                    "type": "integer"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "关联标签 (Many To Many)\n一篇文章可以有多个标签",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "title": {
-                    "type": "string",
-                    "maxLength": 100
+                    "type": "string"
                 }
             }
         },
@@ -740,10 +1054,12 @@
                     "type": "integer"
                 },
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50000
                 },
                 "cover": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 2048
                 },
                 "id": {
                     "type": "integer"
@@ -776,13 +1092,15 @@
                 "tags": {
                     "description": "标签 ID 列表 (全量覆盖)",
                     "type": "array",
+                    "maxItems": 10,
                     "items": {
                         "type": "string"
                     }
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "minLength": 1
                 }
             }
         },
