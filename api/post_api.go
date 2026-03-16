@@ -70,7 +70,7 @@ func (m *PostApi) GetPost(ctx iris.Context) {
 // @Summary Create a new post
 // @Description - 可以指定slug，但建议置为空，让程序自动生成
 // @Description - published_at: 发布时间,RFC3339格式："2006-01-02T15:04:05Z07:00" 。若留空则默认为当前时间。
-// @Description - 后门字段target_author_id,仅当超级管理员时生效
+// @Description - 后门字段bd_target_author_id,仅当超级管理员时生效
 // @Accept json
 // @Param Authorization header string false "Bearer Token"
 // @Param body body dto.PostAddReq true "Post Info"
@@ -107,6 +107,8 @@ func (m *PostApi) AddPost(ctx iris.Context) {
 // @Summary Update a post
 // @Description 更新文章内容。支持部分更新（动态 PATCH 逻辑）：前端只需传入需要修改的字段，未传入的字段将保持原样。
 // @Description 注意：不支持修改文章作者。仅限文章原作者或系统管理员操作。
+// @Description - 后门字段bd_target_author_id, bd_Target_published_at仅当超级管理员时生效
+// @Description
 // @Accept json
 // @Produce json
 // @Param Authorization header string false "Bearer Token"

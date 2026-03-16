@@ -78,7 +78,7 @@ func (m *AdminApi) Login(ctx iris.Context) {
 }
 
 // @Tags Admin
-// @Summary Create normal user (writer)
+// @Summary Create admin (admin)
 // @Description ** 任意添加admin表【！！非业务】**
 // @Description ** ---- 业务错误码（Cpde）说明 ---- **
 // @Description -401005
@@ -87,7 +87,7 @@ func (m *AdminApi) Login(ctx iris.Context) {
 // @Param Authorization header string false "Bearer Token"
 // @Param body body dto.AdminAddReq true "Admin Info"
 // @Success 200 {object} model.ResponseJson "成功响应。注意：实际返回值为 Code: 20100, Msg: 'create a new Admin successfully'"
-// @Router /api/v1/private/admin [post]
+// @Router /api/v1/private/admin/supreme [post]
 func (m *AdminApi) AddAdmin(ctx iris.Context) {
 	m.SetContext(ctx)
 	var req dto.AdminAddReq
@@ -96,8 +96,7 @@ func (m *AdminApi) AddAdmin(ctx iris.Context) {
 	role := ctx.Values().GetIntDefault("current_user_role", 0)
 	if role != 999 { // 假设 999 是超级管理员
 		// 在这里拦截，清清楚楚地返回 403 Forbidden
-		err1 := errcode.ErrPermissionDenied
-		m.HandleError(ctx, err1)
+		m.HandleError(ctx, errcode.ErrPermissionDenied)
 		return
 	}
 
@@ -109,13 +108,51 @@ func (m *AdminApi) AddAdmin(ctx iris.Context) {
 	// 2. get current user Role
 
 	// 3. call Service
-	err := m.Service.CreateAdmin(req, role)
+	err := m.Service.CreateAdmin(req)
 	if err != nil {
 		m.HandleError(ctx, err)
 		return
 	}
 	m.Ok(model.ResponseJson{Code: 20100,
 		Msg: "create a new Admin successfully"})
+}
+
+// @Tags Admin
+// @Summary Create normal user (author)
+// @Description ** 添加admin表**
+// @Description ** ---- 业务错误码（Cpde）说明 ---- **
+// @Description -401005
+// @Accept json
+// @Produce json
+// @Param Authorization header string false "Bearer Token"
+// @Param body body dto.AuthorAddReq true "Author Info"
+// @Success 200 {object} model.ResponseJson "成功响应。注意：实际返回值为 Code: 20100, Msg: 'create a new Author successfully'"
+// @Router /api/v1/private/admin/author [post]
+func (m *AdminApi) AddAuthor(ctx iris.Context) {
+	m.SetContext(ctx)
+	var req dto.AuthorAddReq
+
+	// 0. authorization check
+	role := ctx.Values().GetIntDefault("current_user_role", 0)
+	if role != 999 { // 假设 999 是超级管理员
+		// 在这里拦截，清清楚楚地返回 403 Forbidden
+		m.HandleError(ctx, errcode.ErrPermissionDenied)
+		return
+	}
+
+	// 1. bind req
+	if !m.BuildRequest(BuildRequestOption{DTO: &req, BindBody: true}) {
+		return
+	}
+
+	// 3. call Service
+	err := m.Service.CreateAuthor(req)
+	if err != nil {
+		m.HandleError(ctx, err)
+		return
+	}
+	m.Ok(model.ResponseJson{Code: 20100,
+		Msg: "create a new Author successfully"})
 }
 
 // @Tags Admin

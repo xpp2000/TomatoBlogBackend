@@ -8,6 +8,7 @@ import (
 	"tomatoBlogDB/dto"
 	"tomatoBlogDB/errcode"
 	"tomatoBlogDB/model"
+	"tomatoBlogDB/utils"
 
 	"github.com/gosimple/slug"
 	"gorm.io/gorm"
@@ -163,7 +164,7 @@ func (s *PostService) CreatePost(req dto.PostAddReq, authorID uint64, operatorRo
 	//  4.1 back-door for admin
 	var finalAuthorID uint64 = authorID
 	if operatorRole == 999 {
-		finalAuthorID = req.TargetAuthorID
+		finalAuthorID = req.BDTargetAuthorID
 	}
 	// 4.2
 	post := model.Post{
@@ -245,7 +246,20 @@ func (s *PostService) UpdatePost(req dto.PostUpdateReq, operatorID uint64, opera
 			updateData["slug"] = slug.Make(*req.Title)
 		}
 	}
-	// 3.2 Tags
+	// 3.2 backdoor fields
+	if operatorRole == 999 {
+		if req.BDTargetAuthorID != nil {
+			updateData["author_id"] = *req.BDTargetAuthorID
+		}
+		if req.BDTargetPublishedAt != nil {
+			finalPublishedAt, errT := utils.PharseTimeString(*req.BDTargetPublishedAt)
+			if errT != nil {
+				return errcode.ErrBadTimeStr
+			}
+			updateData["published_at"] = &finalPublishedAt
+		}
+	}
+	// 3.3 Tags
 	var tagsID []uint64
 	if req.Tags != nil {
 		tags, err := s.tagDao.GetOrCreateByNames(req.Tags)

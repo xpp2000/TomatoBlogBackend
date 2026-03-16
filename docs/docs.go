@@ -301,7 +301,47 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/private/admin": {
+        "/api/v1/private/admin/author": {
+            "post": {
+                "description": "** 添加admin表**\n** ---- 业务错误码（Cpde）说明 ---- **\n-401005",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create normal user (author)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "description": "Author Info",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthorAddReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应。注意：实际返回值为 Code: 20100, Msg: 'create a new Author successfully'",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseJson"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/admin/supreme": {
             "post": {
                 "description": "** 任意添加admin表【！！非业务】**\n** ---- 业务错误码（Cpde）说明 ---- **\n-401005",
                 "consumes": [
@@ -313,7 +353,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Create normal user (writer)",
+                "summary": "Create admin (admin)",
                 "parameters": [
                     {
                         "type": "string",
@@ -549,7 +589,7 @@ const docTemplate = `{
         },
         "/api/v1/private/post": {
             "post": {
-                "description": "- 可以指定slug，但建议置为空，让程序自动生成\n- published_at: 发布时间,RFC3339格式：\"2006-01-02T15:04:05Z07:00\" 。若留空则默认为当前时间。\n- 后门字段target_author_id,仅当超级管理员时生效",
+                "description": "- 可以指定slug，但建议置为空，让程序自动生成\n- published_at: 发布时间,RFC3339格式：\"2006-01-02T15:04:05Z07:00\" 。若留空则默认为当前时间。\n- 后门字段bd_target_author_id,仅当超级管理员时生效",
                 "consumes": [
                     "application/json"
                 ],
@@ -586,7 +626,7 @@ const docTemplate = `{
         },
         "/api/v1/private/post/{id}": {
             "put": {
-                "description": "更新文章内容。支持部分更新（动态 PATCH 逻辑）：前端只需传入需要修改的字段，未传入的字段将保持原样。\n注意：不支持修改文章作者。仅限文章原作者或系统管理员操作。",
+                "description": "更新文章内容。支持部分更新（动态 PATCH 逻辑）：前端只需传入需要修改的字段，未传入的字段将保持原样。\n注意：不支持修改文章作者。仅限文章原作者或系统管理员操作。\n- 后门字段bd_target_author_id, bd_Target_published_at仅当超级管理员时生效\n",
                 "consumes": [
                     "application/json"
                 ],
@@ -719,9 +759,7 @@ const docTemplate = `{
                 "email",
                 "mobile",
                 "name",
-                "password",
-                "pen_name",
-                "role"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -741,17 +779,9 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 6
                 },
-                "pen_name": {
-                    "type": "string",
-                    "maxLength": 64
-                },
                 "real_name": {
                     "type": "string",
                     "maxLength": 20
-                },
-                "role": {
-                    "type": "integer",
-                    "maximum": 999
                 }
             }
         },
@@ -763,10 +793,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 64
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 6
                 }
             }
         },
@@ -793,6 +825,43 @@ const docTemplate = `{
                         1,
                         2
                     ]
+                }
+            }
+        },
+        "dto.AuthorAddReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "mobile",
+                "name",
+                "password",
+                "pen_name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "登录名",
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "pen_name": {
+                    "description": "独有字段：必须有笔名",
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "real_name": {
+                    "type": "string",
+                    "maxLength": 20
                 }
             }
         },
@@ -897,6 +966,10 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
+                "bd_target_author_id": {
+                    "description": "== supreme admin only",
+                    "type": "integer"
+                },
                 "category_id": {
                     "type": "integer"
                 },
@@ -936,10 +1009,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "target_author_id": {
-                    "description": "== supreme admin only",
-                    "type": "integer"
                 },
                 "title": {
                     "type": "string",
@@ -1056,6 +1125,14 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
+                "bd_Target_published_at": {
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "bd_target_author_id": {
+                    "description": "== supreme admin only",
+                    "type": "integer"
+                },
                 "category_id": {
                     "description": "分类通常是必填的，即使不改也要传原值",
                     "type": "integer"

@@ -16,7 +16,10 @@ var (
 		HttpCode: http.StatusBadRequest,
 		BizCode:  40001,
 		Msg:      " Invalid URL parameter(s)"}
-
+	ErrBadTimeStr = &AppError{
+		HttpCode: http.StatusBadRequest,
+		BizCode:  40002,
+		Msg:      " Invalid time string parameter(s)"}
 	/* --------------- Admin start --------------- */
 	// = 400级别
 	ErrEmailExist         = NewBizErr(4000101, "Email has existed")

@@ -51,26 +51,23 @@ func (s *AdminService) Login(req dto.AdminLoginReq) (string, *model.Admin, error
 	return token, admin, nil
 }
 
-// ==== Create
-func (s *AdminService) CreateAdmin(req dto.AdminAddReq, operatorRole int) error {
+// ==== Create admin
+func (s *AdminService) CreateAdmin(req dto.AdminAddReq) error {
 	// 1. permission check
-	if operatorRole != ROLE_ADMIN {
-		return errcode.ErrPermissionDenied
-	}
-	if req.Role == ROLE_ADMIN {
-		return errcode.ErrPermissionDenied
-	}
-	// Role is valid?
-	if req.Role != 1 {
-		return errcode.ErrRoleTargetDeny
-	}
+	// role has been checked on api
+	adminRole := 999
+
 	// 2. assembly admin
+	finalRealName := req.RealName
+	if finalRealName == "" {
+		finalRealName = "anonymous"
+	}
 	admin := &model.Admin{
 		Name:     req.Name,
 		RealName: req.RealName,
 		Mobile:   req.Mobile,
 		Email:    req.Email,
-		Role:     req.Role,
+		Role:     adminRole,
 	}
 	if err := admin.SetPassword(req.Password); err != nil {
 		return errcode.NewSysErr(err)
@@ -86,16 +83,55 @@ func (s *AdminService) CreateAdmin(req dto.AdminAddReq, operatorRole int) error 
 		return errcode.ErrMobileExist
 	}
 
-	// 4.
-	// 只有当 Role 为普通作者(1) 时，才为其初始化作者档案
-	if admin.Role == 1 {
-		admin.Author = &model.Author{
-			PenName: req.PenName,
-			// 此时不需要填 AdminID，GORM 插入 admin 后会自动把生成的 ID 填到这里！
-		}
-	}
 	// 5.
 	err := s.adminDao.CreateAdmin(admin)
+	if err != nil {
+		return errcode.NewSysErr(err)
+	}
+	return nil
+}
+
+// ==== Create author
+func (s *AdminService) CreateAuthor(req dto.AuthorAddReq) error {
+	// 1. permission check
+	// role has been checked on api
+
+	authorRole := 1
+
+	// 2. assembly admin
+	finalRealName := req.RealName
+	if finalRealName == "" {
+		finalRealName = "anonymous"
+	}
+	author := &model.Admin{
+		Name:     req.Name,
+		RealName: req.RealName,
+		Mobile:   req.Mobile,
+		Email:    req.Email,
+		Role:     authorRole,
+	}
+	if err := author.SetPassword(req.Password); err != nil {
+		return errcode.NewSysErr(err)
+	}
+	// 3. check duplicated
+	if isExist, _ := s.adminDao.CheckUnique("email", req.Email); isExist {
+		return errcode.ErrEmailExist
+	}
+	if isExist, _ := s.adminDao.CheckUnique("name", req.Name); isExist {
+		return errcode.ErrNameExist
+	}
+	if isExist, _ := s.adminDao.CheckUnique("mobil", req.Mobile); isExist {
+		return errcode.ErrMobileExist
+	}
+
+	// 4. create Author item concurrently
+	author.Author = &model.Author{
+		PenName: req.PenName,
+		// 此时不需要填 AdminID，GORM 插入 admin 后会自动把生成的 ID 填到这里！
+	}
+
+	// 5.
+	err := s.adminDao.CreateAdmin(author)
 	if err != nil {
 		return errcode.NewSysErr(err)
 	}

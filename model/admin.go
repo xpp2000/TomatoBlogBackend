@@ -18,7 +18,7 @@ type Admin struct {
 	BaseModel
 	// 核心信息
 	Name     string `json:"name" gorm:"type:varchar(64);not null;comment:user name"`
-	RealName string `json:"real_name,omitempty" gorm:"type:varchar(128);comment:real name"`
+	RealName string `json:"real_name,omitempty" gorm:"type:varchar(128);comment:real name, conserved to be used"`
 
 	// 联系方式 (添加唯一索引)
 	Mobile string `json:"mobile" gorm:"type:char(11);uniqueIndex;not null;comment:+86 phone number"`

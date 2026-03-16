@@ -9,7 +9,9 @@ func RegisterAdminRoutes(rgPublic iris.Party, rgPrivate iris.Party, apiContainer
 	p := rgPrivate.Party("/admin")
 
 	{
-		p.Post("/", adminApi.AddAdmin)
+		p.Post("/supreme", adminApi.AddAdmin)
+		p.Post("/author", adminApi.AddAuthor)
+
 		p.Patch("/{id}/status", adminApi.UpdateStatus)
 		p.Delete("/{id}", adminApi.DeleteAdmin)
 	}

@@ -20,7 +20,7 @@ type PostAddReq struct {
 	PublishedAt string   `json:"published_at" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00,max=30"` // RFC3339 "published_at": "2026-02-27T18:00:00+08:00"
 
 	// == supreme admin only
-	TargetAuthorID uint64 `json:"target_author_id" validate:"omitempty,gt=0"`
+	BDTargetAuthorID uint64 `json:"bd_target_author_id" validate:"omitempty,gt=0"`
 }
 
 type PostUpdateReq struct {
@@ -38,6 +38,10 @@ type PostUpdateReq struct {
 	Tags []string `json:"tags" validate:"omitempty,max=10,dive,max=30"`
 	// 状态 (例如想把已发布改为草稿)
 	Status *int `json:"status" validate:"oneof=0 1 2"`
+
+	// == supreme admin only
+	BDTargetAuthorID    *uint64 `json:"bd_target_author_id" validate:"omitempty,gt=0"`
+	BDTargetPublishedAt *string `json:"bd_Target_published_at" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00,max=30"`
 }
 
 type PostStatusReq struct {
@@ -48,7 +52,7 @@ type PostStatusReq struct {
 type PostListReq struct {
 	Page       int    `json:"page" form:"page"`
 	PageSize   int    `json:"page_size" form:"page_size"`
-	Keyword    string `json:"keyword" form:"keyword"`
+	Keyword    string `json:"keyword" form:"keyword" validate:"omitempty,max=256"`
 	CategoryID uint64 `json:"category_id" form:"category_id"`
 	TagID      uint64 `json:"tag_id" form:"tag_id"`
 	Status     *int   `json:"status" form:"status"` // point type, allow 0/nil values
@@ -69,10 +73,10 @@ type CategoryAddReq struct {
 /* ===== Category end ===== */
 
 /* ===== Author begin ===== */
-type AuthorAddReq struct {
+type AuthorUpdateReq struct {
 	Name     string `json:"name" validate:"required,max=128"`
 	Position string `json:"position" validate:"required,max=128"`
-	Avatar   string `json:"avatar,omitempty" validate:"required,url"`
+	Avatar   string `json:"avatar,omitempty" validate:"required,url,max=2048"`
 	Mobile   string `json:"mobile,omitempty" validate:"omitempty,max=32"`
 	Email    string `json:"email,omitempty" validate:"omitempty,max=128"`
 }

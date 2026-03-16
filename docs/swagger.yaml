@@ -15,28 +15,22 @@ definitions:
       password:
         minLength: 6
         type: string
-      pen_name:
-        maxLength: 64
-        type: string
       real_name:
         maxLength: 20
         type: string
-      role:
-        maximum: 999
-        type: integer
     required:
     - email
     - mobile
     - name
     - password
-    - pen_name
-    - role
     type: object
   dto.AdminLoginReq:
     properties:
       name:
+        maxLength: 64
         type: string
       password:
+        minLength: 6
         type: string
     required:
     - name
@@ -59,6 +53,34 @@ definitions:
         - 1
         - 2
         type: integer
+    type: object
+  dto.AuthorAddReq:
+    properties:
+      email:
+        type: string
+      mobile:
+        type: string
+      name:
+        description: 登录名
+        maxLength: 20
+        minLength: 3
+        type: string
+      password:
+        minLength: 6
+        type: string
+      pen_name:
+        description: 独有字段：必须有笔名
+        maxLength: 64
+        type: string
+      real_name:
+        maxLength: 20
+        type: string
+    required:
+    - email
+    - mobile
+    - name
+    - password
+    - pen_name
     type: object
   dto.AuthorListResp:
     properties:
@@ -125,6 +147,9 @@ definitions:
     type: object
   dto.PostAddReq:
     properties:
+      bd_target_author_id:
+        description: == supreme admin only
+        type: integer
       category_id:
         type: integer
       content:
@@ -159,9 +184,6 @@ definitions:
           type: string
         maxItems: 10
         type: array
-      target_author_id:
-        description: == supreme admin only
-        type: integer
       title:
         maxLength: 100
         type: string
@@ -250,6 +272,12 @@ definitions:
     type: object
   dto.PostUpdateReq:
     properties:
+      bd_Target_published_at:
+        maxLength: 30
+        type: string
+      bd_target_author_id:
+        description: == supreme admin only
+        type: integer
       category_id:
         description: 分类通常是必填的，即使不改也要传原值
         type: integer
@@ -498,35 +526,6 @@ paths:
       summary: Get post list
       tags:
       - Post
-  /api/v1/private/admin:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        ** 任意添加admin表【！！非业务】**
-        ** ---- 业务错误码（Cpde）说明 ---- **
-        -401005
-      parameters:
-      - description: Bearer Token
-        in: header
-        name: Authorization
-        type: string
-      - description: Admin Info
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.AdminAddReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '成功响应。注意：实际返回值为 Code: 20100, Msg: ''create a new Admin successfully'''
-          schema:
-            $ref: '#/definitions/model.ResponseJson'
-      summary: Create normal user (writer)
-      tags:
-      - Admin
   /api/v1/private/admin/{id}:
     delete:
       description: only allow supreme admin(Role=999) do this.
@@ -579,6 +578,64 @@ paths:
           schema:
             type: "200"
       summary: update an admin status
+      tags:
+      - Admin
+  /api/v1/private/admin/author:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        ** 添加admin表**
+        ** ---- 业务错误码（Cpde）说明 ---- **
+        -401005
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        type: string
+      - description: Author Info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthorAddReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '成功响应。注意：实际返回值为 Code: 20100, Msg: ''create a new Author successfully'''
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
+      summary: Create normal user (author)
+      tags:
+      - Admin
+  /api/v1/private/admin/supreme:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        ** 任意添加admin表【！！非业务】**
+        ** ---- 业务错误码（Cpde）说明 ---- **
+        -401005
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        type: string
+      - description: Admin Info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdminAddReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '成功响应。注意：实际返回值为 Code: 20100, Msg: ''create a new Admin successfully'''
+          schema:
+            $ref: '#/definitions/model.ResponseJson'
+      summary: Create admin (admin)
       tags:
       - Admin
   /api/v1/private/admins:
@@ -673,7 +730,7 @@ paths:
       description: |-
         - 可以指定slug，但建议置为空，让程序自动生成
         - published_at: 发布时间,RFC3339格式："2006-01-02T15:04:05Z07:00" 。若留空则默认为当前时间。
-        - 后门字段target_author_id,仅当超级管理员时生效
+        - 后门字段bd_target_author_id,仅当超级管理员时生效
       parameters:
       - description: Bearer Token
         in: header
@@ -721,9 +778,10 @@ paths:
     put:
       consumes:
       - application/json
-      description: |-
+      description: |
         更新文章内容。支持部分更新（动态 PATCH 逻辑）：前端只需传入需要修改的字段，未传入的字段将保持原样。
         注意：不支持修改文章作者。仅限文章原作者或系统管理员操作。
+        - 后门字段bd_target_author_id, bd_Target_published_at仅当超级管理员时生效
       parameters:
       - description: Bearer Token
         in: header

@@ -2,31 +2,39 @@ package dto
 
 // ==== AdminLoginReq
 type AdminLoginReq struct {
-	Name     string `json:"name" form:"name" validate:"required"`
-	Password string `json:"password" form:"password" validate:"required" binding:"required"`
-}
-type AdminLoginResp struct {
-	Token string `json:"token" example:"eyJhbGciOiJIUzI1Ni... "` // 可以顺手加个 example
-	Role  string `json:"role" example:"admin"`
+	Name     string `json:"name" form:"name" validate:"required,max=64"`
+	Password string `json:"password" form:"password" validate:"required,min=6" binding:"required"`
 }
 
+// 专供创建普通作者 (包含 Author 档案信息)
+type AuthorAddReq struct {
+	Name     string `json:"name" validate:"required,min=3,max=20"` // 登录名
+	RealName string `json:"real_name" form:"real_name" validate:"omitempty,max=20"`
+	Mobile   string `json:"mobile" validate:"required,len=11"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
+
+	// 独有字段：必须有笔名
+	PenName string `json:"pen_name" validate:"required,max=64"`
+}
+
+// 专供创建超管 (只有纯粹的账号信息)
 type AdminAddReq struct {
 	Name     string `json:"name" form:"name" validate:"required,min=3,max=20"`
 	RealName string `json:"real_name" form:"real_name" validate:"omitempty,max=20"`
 	Mobile   string `json:"mobile" form:"mobile" validate:"required,len=11"` // 中国手机号通常11位
 	Email    string `json:"email" form:"email" validate:"required,email"`    // 校验邮箱格式
 	Password string `json:"password" form:"password" validate:"required,min=6"`
-
-	Role    int    `json:"role" form:"role" validate:"required,max=999"`
-	PenName string `json:"pen_name" form:"pen_name" validate:"required,max=64"`
 }
 
 // ==== Update
 type AdminUpdateReq struct {
-	ID       uint   `json:"id" form:"id"`
-	ReadName string `json:"real_name" form:"real_name" validate:"omitempty,max=20"`
-	Mobile   string `json:"mobile" form:"mobile" validate:"omitempty,len=11"`
-	Email    string `json:"email" form:"email" validate:"omitempty,empty"`
+	ID       uint    `json:"id" form:"id"`
+	ReadName *string `json:"real_name" form:"real_name" validate:"omitempty,max=20"`
+	Mobile   *string `json:"mobile" form:"mobile" validate:"omitempty,len=11"`
+	Email    *string `json:"email" form:"email" validate:"omitempty,empty"`
+	// == supreme Admin fields
+	BDTargetID *uint `json:"bd_target_id" form:"bd_target_id" validate:"omitempty"`
 }
 
 // ==== List
@@ -65,3 +73,10 @@ type AdminListResp struct {
 	PenEmail  string `json:"pen_email"`
 	PenMobile string `json:"pen_mobile"`
 }
+
+type AdminLoginResp struct {
+	Token string `json:"token" example:"eyJhbGciOiJIUzI1Ni... "` // 可以顺手加个 example
+	Role  string `json:"role" example:"admin"`
+}
+
+/* ===== Response end ===== */
