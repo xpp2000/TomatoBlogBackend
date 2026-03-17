@@ -15,6 +15,7 @@ func RegisterAdminRoutes(rgPublic iris.Party, rgPrivate iris.Party, apiContainer
 		p.Patch("/{id}/status", adminApi.UpdateStatus)
 		p.Delete("/{id}", adminApi.DeleteAdmin)
 	}
+
 	rgPrivate.Get("/admins", adminApi.ListAdmins)
 	{
 		rgPublic.Post("/login", adminApi.Login)

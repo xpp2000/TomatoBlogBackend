@@ -11,7 +11,6 @@ server:
   port: 8888
 
 jwt:
-  xx: 30
   tokenExpire: 100 # token有效时长，分钟  用GetDuration()获取
   signingKey: tomatoleo.cn # 签名使用的key
 log:
@@ -31,3 +30,12 @@ dataInit:
   InitAdminPsw: "asd123"
   InitAuthorName: "Tomato Leo"
   InitAuthorPsw: "asd123"
+
+oss:
+  provider: "minio" 
+  endpoint: "127.0.0.1:9000" 
+  accessKey: "admin"
+  secretKey: "asdasd123"
+  bucketName: "tomatoblog"
+  useSSL: false
+  customDomain: ""

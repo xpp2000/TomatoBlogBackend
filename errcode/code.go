@@ -49,4 +49,8 @@ var (
 
 	/* --------------- Author end --------------- */
 
+	/* --------------- Common start --------------- */
+	ErrReadUploadFileFail = NewBizErr(4000401, "fail to read upload file, please make sure that the filed is named as 'file' and less than 5MB")
+	/* --------------- Common end --------------- */
+
 )

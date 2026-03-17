@@ -25,3 +25,7 @@ func (r *PageReq) GetPageSize() int {
 	}
 	return r.PageSize
 }
+
+type UploadImageResp struct {
+	Url string `json:"url"`
+}

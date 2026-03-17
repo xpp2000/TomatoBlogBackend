@@ -480,3 +480,73 @@
 {"level":"INFO","time":"2026-03-16 11:41:24","msg":"Post seeds already exist"}
 {"level":"INFO","time":"2026-03-16 11:41:24","msg":"Server is running at :8888"}
 {"level":"INFO","time":"2026-03-16 15:42:10","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-16 19:13:27","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-16 19:13:27","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-16 19:13:27","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-16 19:13:27","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 09:06:38","msg":"Shutdown Server ..."}
+{"level":"ERROR","time":"2026-03-17 10:17:37","msg":"failed to connect to `user=custom_user database=app_db`: 127.0.0.1:5432 (127.0.0.1): dial error: dial tcp 127.0.0.1:5432: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"INFO","time":"2026-03-17 10:18:21","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 10:18:21","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 10:18:21","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 10:18:21","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 11:33:18","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 14:12:08","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 14:12:08","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 14:12:09","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 14:12:09","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 15:49:45","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 15:50:56","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 15:50:56","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 15:50:56","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 15:50:56","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 15:52:11","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 15:52:21","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 15:52:21","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 15:52:21","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 15:52:21","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 16:07:36","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 16:07:40","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 16:07:40","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 16:07:40","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 16:07:40","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 16:13:50","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 16:13:55","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 16:13:55","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 16:13:55","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 16:13:55","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 16:25:32","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 16:25:36","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 16:25:36","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 16:25:36","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 16:25:36","msg":"Server is running at :8888"}
+{"level":"ERROR","time":"2026-03-17 16:35:50","msg":"System Error Caught","path":"/api/v1/private/common/uploadimg","biz_code":50000,"raw_error":"The Access Key Id you provided does not exist in our records."}
+{"level":"INFO","time":"2026-03-17 16:38:21","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 16:38:25","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 16:38:25","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 16:38:25","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 16:38:25","msg":"Server is running at :8888"}
+{"level":"ERROR","time":"2026-03-17 16:38:32","msg":"System Error Caught","path":"/api/v1/private/common/uploadimg","biz_code":50000,"raw_error":"The Access Key Id you provided does not exist in our records."}
+{"level":"INFO","time":"2026-03-17 16:43:11","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 16:43:14","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 16:43:14","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 16:43:14","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 16:43:14","msg":"Server is running at :8888"}
+{"level":"ERROR","time":"2026-03-17 16:43:19","msg":"System Error Caught","path":"/api/v1/private/common/uploadimg","biz_code":50000,"raw_error":"The specified bucket does not exist"}
+{"level":"INFO","time":"2026-03-17 16:51:29","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 17:05:38","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 17:05:38","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 17:05:39","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 17:05:39","msg":"Server is running at :8888"}
+{"level":"ERROR","time":"2026-03-17 17:05:47","msg":"System Error Caught","path":"/api/v1/private/common/uploadimg","biz_code":50000,"raw_error":"WebP 压缩失败: exit status 1. Error! Could not process file -\r\nError! Cannot read input picture file '-'\r\n"}
+{"level":"INFO","time":"2026-03-17 17:24:10","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 17:24:14","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 17:24:14","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 17:24:14","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 17:24:14","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 17:27:30","msg":"Shutdown Server ..."}
+{"level":"INFO","time":"2026-03-17 17:28:06","msg":"Default super admin has existed"}
+{"level":"INFO","time":"2026-03-17 17:28:06","msg":"Default author has existed"}
+{"level":"INFO","time":"2026-03-17 17:28:06","msg":"Post seeds already exist"}
+{"level":"INFO","time":"2026-03-17 17:28:06","msg":"Server is running at :8888"}
+{"level":"INFO","time":"2026-03-17 17:34:24","msg":"Shutdown Server ..."}

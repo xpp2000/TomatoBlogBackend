@@ -587,6 +587,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/private/common/uploadimg": {
+            "post": {
+                "description": "统一图片上传接口 (支持 Markdown 编辑器自动上传)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Common"
+                ],
+                "summary": "Upload Image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "图片文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ResponseJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UploadImageResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/private/post": {
             "post": {
                 "description": "- 可以指定slug，但建议置为空，让程序自动生成\n- published_at: 发布时间,RFC3339格式：\"2006-01-02T15:04:05Z07:00\" 。若留空则默认为当前时间。\n- 后门字段bd_target_author_id,仅当超级管理员时生效",
@@ -1185,6 +1226,14 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 1
+                }
+            }
+        },
+        "dto.UploadImageResp": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         },

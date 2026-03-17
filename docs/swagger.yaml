@@ -323,6 +323,11 @@ definitions:
     - content
     - title
     type: object
+  dto.UploadImageResp:
+    properties:
+      url:
+        type: string
+    type: object
   model.ResponseJson:
     properties:
       code:
@@ -723,6 +728,30 @@ paths:
       summary: Delete a category
       tags:
       - Category
+  /api/v1/private/common/uploadimg:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 统一图片上传接口 (支持 Markdown 编辑器自动上传)
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ResponseJson'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UploadImageResp'
+              type: object
+      summary: Upload Image
+      tags:
+      - Common
   /api/v1/private/post:
     post:
       consumes:

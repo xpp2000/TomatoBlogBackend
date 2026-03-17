@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	Config *AppConfig
 	Logger *zap.SugaredLogger
 	DB     *gorm.DB
 )

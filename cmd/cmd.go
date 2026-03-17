@@ -10,11 +10,11 @@ import (
 	"time"
 	"tomatoBlogDB/conf"
 	"tomatoBlogDB/global"
+	"tomatoBlogDB/pkg/storage"
 	"tomatoBlogDB/router"
 	"tomatoBlogDB/utils"
 
 	"github.com/kataras/iris/v12"
-	"github.com/spf13/viper"
 )
 
 func Clean() {
@@ -48,14 +48,17 @@ func Start() {
 	}
 	global.DB = db
 
+	// 4
+	storage.InitStorage(global.Config.Oss)
+
 	// = init router
 	app := router.NewApp()
 
-	port := viper.GetString("server.port")
-	if port == "" {
-		port = "8888"
+	port := global.Config.Server.Port
+	if port == 0 {
+		port = 8888
 	}
-	addr := fmt.Sprintf(":%s", port)
+	addr := fmt.Sprintf(":%d", port)
 
 	// 4.graceful shutdown
 	go func() {

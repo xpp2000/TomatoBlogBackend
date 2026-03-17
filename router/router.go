@@ -1,13 +1,8 @@
 package router
 
 import (
-	stdContext "context"
 	"fmt"
-	"os"
-	"os/signal"
 	"strings"
-	"syscall"
-	"time"
 	_ "tomatoBlogDB/docs"
 	"tomatoBlogDB/global"
 	"tomatoBlogDB/middleware"
@@ -102,6 +97,7 @@ func NewApp() *iris.Application {
 	apiContainer := InitDI(global.DB)
 	// ---- compulsory module ----
 	RegisterAdminRoutes(publicGroup, privateGroup, apiContainer)
+	RegisterCommonRoutes(publicGroup, privateGroup, apiContainer)
 	// ---- selective modules ----
 	if viper.GetBool("modules.post.enable") {
 		RegisterPostRoutes(publicGroup, privateGroup, apiContainer)
@@ -114,91 +110,8 @@ func NewApp() *iris.Application {
 		}
 		app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(swaggerConfig, swaggerFiles.Handler))
 	}
+
 	return app
-}
-
-// = abolished
-func InitRouter() {
-	setEnvFunc()
-	app := iris.New()
-
-	if isDev() {
-		app.Logger().SetLevel("debug")
-	}
-	if isPro() {
-		app.Logger().SetLevel("info")
-	}
-
-	InitBasePlatformRoutes()
-
-	rgApi := app.Party("/")
-	rgAdmin := app.Party("/admin")
-
-	// 全局2MB限制，对于Upload再单独放宽
-	rgApi.Use(iris.LimitRequestBodySize(2 << 20))
-
-	rgAdmin.Use(middleware.Auth())
-
-	// = register module routers
-	for _, fnRegisterRoute := range gfnRouters {
-		fnRegisterRoute(rgApi, rgAdmin)
-	}
-
-	// = integrate swagger
-	if isDev() {
-		config := &swagger.Config{
-			URL:         "http://localhost:8888/swagger/doc.json",
-			DeepLinking: true,
-		}
-		app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(config, swaggerFiles.Handler))
-	}
-
-	// = reading server settings from viper
-	stPort := viper.GetString("server.port")
-	if stPort == "" {
-		stPort = "8888"
-	}
-
-	// graceful shutdown
-	idleConnsClosed := make(chan struct{})
-	go func() {
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch,
-			// kill -SIGINT XXXX or Ctrl+c
-			os.Interrupt,
-			syscall.SIGINT, // register that too, it should be ok
-			// os.Kill  is equivalent with the syscall.Kill
-			os.Kill,
-			syscall.SIGKILL, // register that too, it should be ok
-			// kill -SIGTERM XXXX
-			syscall.SIGTERM,
-		)
-		select {
-		case <-ch:
-			println("shutdown...")
-
-			timeout := 10 * time.Second
-			ctx, cancel := stdContext.WithTimeout(stdContext.Background(), timeout)
-			defer cancel()
-			app.Shutdown(ctx)
-			close(idleConnsClosed)
-		}
-	}()
-
-	//= Start the server
-	err := app.Run(
-		iris.Addr("localhost:8888"),
-		iris.WithoutServerError(iris.ErrServerClosed),
-		iris.WithOptimizations,
-		iris.WithoutInterruptHandler,
-	)
-	if err != nil {
-		global.Logger.Error(fmt.Sprintf("Start Server Error: %s", err.Error()))
-	}
-	global.Logger.Info("Start TomatoBlogDBServer successfully")
-
-	<-idleConnsClosed
-	global.Logger.Info("Stop Server successfully")
 }
 
 func InitBasePlatformRoutes() {

@@ -16,6 +16,7 @@ type AppContainer struct {
 	AdminApi    *api.AdminApi
 	AuthorApi   *api.AuthorApi
 	// ... 可以继续加 AdminApi 等
+	CommonApi *api.CommonApi
 }
 
 // InitDI 初始化整个依赖注入树
@@ -43,11 +44,14 @@ func InitDI(db *gorm.DB) *AppContainer {
 	categoryApi := api.NewCategoryApi(categoryService)
 	adminApi := api.NewAdminApi(adminService)
 	authorApi := api.NewAuthorApi(authorService)
+	commonApi := api.NewCommonApi()
 	// 返回装配好的容器
 	return &AppContainer{
 		PostApi:     postApi,
 		CategoryApi: categoryApi,
 		AdminApi:    adminApi,
 		AuthorApi:   authorApi,
+
+		CommonApi: commonApi,
 	}
 }
