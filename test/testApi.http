@@ -1,0 +1,17 @@
+### 测试图片上传 (REST Client 脚本)
+# @name uploadImage
+
+POST http://localhost:8888/api/v1/private/common/uploadimg HTTP/1.1
+# 1. 替换成你真实的 JWT Token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6MSwiTmFtZSI6InRvbWF0byIsIlJvbGUiOjk5OSwiaXNzIjoiVG9tYXRvQmxvZyIsInN1YiI6IlRva2VuIiwiZXhwIjoxNzczNzQyNTM4LCJpYXQiOjE3NzM3MzY1Mzh9.oaN9s_XphGlNYKtjfB2O9yC56Wd_W-WTDiTMNgv60ow
+# 2. 手动定义分隔符 (Boundary)，注意这里的名字要和下面的一致
+Content-Type: multipart/form-data; boundary=----MyGreatBoundary
+
+------MyGreatBoundary
+# 这里的 name="file" 必须和你 Go 代码里 ctx.FormFile("file") 保持一致
+Content-Disposition: form-data; name="file"; filename="test_large.gif"
+Content-Type: image/gif
+
+# 3. 引入本地大文件的路径 (如果是同级目录直接写文件名，或者写绝对路径)
+< C:\Users\TomatoLeo\Pictures\Screenshots\屏幕截图 2026-01-26 143622.png
+------MyGreatBoundary--
